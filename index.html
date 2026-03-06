@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOB Guides</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #1a1a2e;
+      background: #f8f9fa;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #fff;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.85;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* Search & Filter */
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 0.65rem 1rem;
+      font-size: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: #4a6cf7;
+      box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.12);
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #fff;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover { border-color: #4a6cf7; color: #4a6cf7; }
+    .filter-btn.active { background: #4a6cf7; color: #fff; border-color: #4a6cf7; }
+
+    /* Guide Cards */
+    .guides-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .guide-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s, box-shadow 0.15s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .guide-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .guide-card .category {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #4a6cf7;
+      margin-bottom: 0.5rem;
+    }
+
+    .guide-card h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .guide-card p {
+      font-size: 0.92rem;
+      color: #6b7280;
+      flex: 1;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #9ca3af;
+      font-size: 1.05rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: #9ca3af;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SOB Guides</h1>
+    <p>Company guides and reference docs — all in one place.</p>
+  </header>
+
+  <main>
+    <div class="controls">
+      <input type="text" class="search-input" placeholder="Search guides..." id="search">
+      <div id="filters"></div>
+    </div>
+    <div class="guides-grid" id="guides-grid"></div>
+    <div class="empty-state" id="empty-state" style="display:none;">No guides match your search.</div>
+  </main>
+
+  <footer>SOB Guides</footer>
+
+  <script>
+    (async function () {
+      const grid = document.getElementById('guides-grid');
+      const emptyState = document.getElementById('empty-state');
+      const searchInput = document.getElementById('search');
+      const filtersEl = document.getElementById('filters');
+
+      let guides = [];
+      try {
+        const res = await fetch('guides.json');
+        guides = await res.json();
+      } catch (e) {
+        grid.innerHTML = '<p style="color:#ef4444;">Could not load guides.json</p>';
+        return;
+      }
+
+      // Build category filters
+      const categories = [...new Set(guides.map(g => g.category))];
+      let activeCategory = null;
+
+      if (categories.length > 1) {
+        categories.forEach(cat => {
+          const btn = document.createElement('button');
+          btn.className = 'filter-btn';
+          btn.textContent = cat;
+          btn.addEventListener('click', () => {
+            activeCategory = activeCategory === cat ? null : cat;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if (activeCategory) btn.classList.add('active');
+            render();
+          });
+          filtersEl.appendChild(btn);
+        });
+      }
+
+      function render() {
+        const query = searchInput.value.toLowerCase();
+        const filtered = guides.filter(g => {
+          const matchesSearch = g.title.toLowerCase().includes(query) || g.description.toLowerCase().includes(query);
+          const matchesCategory = !activeCategory || g.category === activeCategory;
+          return matchesSearch && matchesCategory;
+        });
+
+        grid.innerHTML = '';
+        emptyState.style.display = filtered.length === 0 ? 'block' : 'none';
+
+        filtered.forEach(g => {
+          const a = document.createElement('a');
+          a.className = 'guide-card';
+          a.href = g.file;
+          a.innerHTML = `
+            <span class="category">${g.category}</span>
+            <h2>${g.title}</h2>
+            <p>${g.description}</p>
+          `;
+          grid.appendChild(a);
+        });
+      }
+
+      searchInput.addEventListener('input', render);
+      render();
+    })();
+  </script>
+</body>
+</html>
