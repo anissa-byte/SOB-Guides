@@ -1,8 +1,20 @@
 [
   {
+    "title": "The Flight Plan",
+    "file": "guides/the-flight-plan.html",
+    "description": "Your map from takeoff to transformation — the six phases every client journey follows.",
+    "category": "Onboarding"
+  },
+  {
     "title": "Sample Guide",
     "file": "guides/sample-guide.html",
     "description": "A sample one-page guide to demonstrate the format.",
     "category": "General"
+  },
+  {
+    "title": "Excalidraw",
+    "file": "guides/excalidraw.html",
+    "description": "Draw hand-drawn style diagrams and sketches in the browser.",
+    "category": "Tools"
   }
 ]
