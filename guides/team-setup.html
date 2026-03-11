@@ -59,8 +59,24 @@
     }
 
     .sidebar-header {
-      padding: 24px 20px 16px;
+      padding: 20px 20px 16px;
       border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-logo {
+      display: block;
+      background: #fff;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 14px;
+    }
+
+    .sidebar-logo img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 36px;
+      object-fit: contain;
     }
 
     .sidebar-header a {
@@ -677,6 +693,9 @@
   <!-- Sidebar -->
   <nav class="sidebar">
     <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <img src="../logo.png" alt="School of Bots">
+      </div>
       <a href="../index.html">&larr; All Guides</a>
       <div class="sidebar-title">AI Team Setup Guide</div>
       <div class="sidebar-subtitle">Cursor + Claude Code + GitHub</div>
