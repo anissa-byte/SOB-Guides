@@ -1,32 +1,44 @@
 [
   {
-    "title": "Team Setup Guide",
+    "title": "AI Team Setup Guide",
     "file": "guides/team-setup.html",
     "description": "Interactive walkthrough for setting up Cursor, Claude Code, and GitHub. The onboarding companion for new team members.",
-    "category": "Onboarding"
+    "category": "Onboarding",
+    "audience": "internal"
   },
   {
     "title": "AI Safety Policy",
     "file": "guides/ai-safety-policy.html",
     "description": "What's approved, what's not, and how to handle client data, API keys, outputs, and incidents.",
-    "category": "Policy"
+    "category": "Policy",
+    "audience": "internal"
   },
   {
     "title": "The Flight Plan",
     "file": "guides/the-flight-plan.html",
     "description": "Your map from takeoff to transformation — the six phases every client journey follows.",
-    "category": "Onboarding"
+    "category": "Onboarding",
+    "audience": "internal"
   },
   {
     "title": "Sample Guide",
     "file": "guides/sample-guide.html",
     "description": "A sample one-page guide to demonstrate the format.",
-    "category": "General"
+    "category": "General",
+    "audience": "internal"
   },
   {
     "title": "Excalidraw",
     "file": "guides/excalidraw.html",
     "description": "Draw hand-drawn style diagrams and sketches in the browser.",
-    "category": "Tools"
+    "category": "Tools",
+    "audience": "internal"
+  },
+  {
+    "title": "Client Welcome Guide",
+    "file": "https://client-welcome-guide.vercel.app",
+    "description": "Everything a new client needs to know — what we build, what to expect, how to report issues, and how we communicate.",
+    "category": "Onboarding",
+    "audience": "client"
   }
 ]

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Team Setup Guide — SOB</title>
+  <title>AI Team Setup Guide — SOB</title>
   <style>
     :root {
       --bg-primary: #0f1117;
@@ -124,6 +124,12 @@
     }
 
     .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+    .nav-item-nested {
+      padding-left: 36px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
 
     .nav-item.active {
       background: var(--gold-dim);
@@ -678,7 +684,7 @@
   <nav class="sidebar">
     <div class="sidebar-header">
       <a href="../index.html">&larr; All Guides</a>
-      <div class="sidebar-title">Team Setup Guide</div>
+      <div class="sidebar-title">AI Team Setup Guide</div>
       <div class="sidebar-subtitle">Cursor + Claude Code + GitHub</div>
     </div>
     <div class="sidebar-nav">
@@ -762,6 +768,10 @@
         <span>
           How Our Systems Work
         </span>
+      </a>
+      <a class="nav-item nav-item-nested" href="ai-safety-policy.html">
+        <span class="nav-dot"></span>
+        <span>AI Safety Policy</span>
       </a>
     </div>
   </nav>
