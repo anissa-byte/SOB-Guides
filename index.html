@@ -4,219 +4,575 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SOB Guides</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --ebony:      #0D0A1B;
+      --navy:       #04005B;
+      --heliotrope: #EB55F6;
+      --portage:    #A59FF7;
+      --texas-rose: #FFBD4A;
+      --smoke:      #F8F9FA;
+      --bg:         #0f1117;
+      --bg2:        #161822;
+      --bg3:        #1c1f2e;
+      --border:     rgba(255,255,255,0.07);
+      --border-lg:  rgba(255,255,255,0.12);
+      --text:       #e8e8ed;
+      --muted:      #8892a4;
+      --dim:        #4a5268;
+    }
+
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.6;
-      color: #1a1a2e;
-      background: #f8f9fa;
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    header {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      color: #fff;
-      padding: 3rem 2rem;
-      text-align: center;
+    /* ── Background mesh ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 10%, rgba(235,85,246,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 35% at 80% 90%, rgba(255,189,74,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 60% 40%, rgba(165,159,247,0.05) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
     }
 
-    header h1 {
-      font-size: 2.4rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-
-    header p {
-      font-size: 1.1rem;
-      opacity: 0.85;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-
-    main {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
-    }
-
-    /* Search & Filter */
-    .controls {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .search-input {
-      flex: 1;
-      min-width: 200px;
-      padding: 0.65rem 1rem;
-      font-size: 1rem;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .search-input:focus {
-      border-color: #4a6cf7;
-      box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.12);
-    }
-
-    .filter-btn {
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      background: #fff;
-      color: #374151;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .filter-btn:hover { border-color: #4a6cf7; color: #4a6cf7; }
-    .filter-btn.active { background: #4a6cf7; color: #fff; border-color: #4a6cf7; }
-
-    /* Guide Cards */
-    .guides-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.25rem;
-    }
-
-    .guide-card {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 1.5rem;
-      text-decoration: none;
-      color: inherit;
-      transition: transform 0.15s, box-shadow 0.15s;
+    /* ── Layout wrapper ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    .guide-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    /* ── Header ── */
+    header {
+      padding: 48px 40px 40px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15,17,23,0.6);
+      backdrop-filter: blur(12px);
+      position: relative;
     }
 
-    .guide-card .category {
-      font-size: 0.75rem;
+    .back-btn {
+      position: absolute;
+      left: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      cursor: pointer;
+      background: var(--bg3);
+      border: 1px solid var(--border-lg);
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: color .2s, background .2s, border-color .2s;
+      letter-spacing: 0.01em;
+    }
+
+    .back-btn:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .logo-wrap {
+      display: inline-block;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 10px 20px;
+      margin-bottom: 28px;
+    }
+
+    .logo-wrap img {
+      display: block;
+      height: 38px;
+      width: auto;
+    }
+
+    .header-eyebrow {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.72rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #4a6cf7;
-      margin-bottom: 0.5rem;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      margin-bottom: 8px;
     }
 
-    .guide-card h2 {
-      font-size: 1.15rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
+    .header-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
     }
 
-    .guide-card p {
+    .header-sub {
+      margin-top: 8px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+    }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 52px 32px 80px;
+    }
+
+    /* ── Section intro ── */
+    .section-intro {
+      margin-bottom: 36px;
+    }
+
+    .section-intro h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .section-intro p {
       font-size: 0.92rem;
-      color: #6b7280;
+      color: var(--muted);
+    }
+
+    /* ── Home tiles ── */
+    #view-home { display: block; }
+    #view-guides { display: none; }
+
+    .home-tiles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .tile {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      cursor: pointer;
+      transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tile::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .tile.internal::before  { background: var(--heliotrope); }
+    .tile.client::before    { background: var(--texas-rose); }
+
+    .tile:hover {
+      transform: translateY(-5px);
+      border-color: var(--border-lg);
+    }
+
+    .tile.internal:hover { box-shadow: 0 20px 48px rgba(235,85,246,0.1); }
+    .tile.client:hover   { box-shadow: 0 20px 48px rgba(255,189,74,0.08); }
+
+    .tile-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 4px 10px;
+      border-radius: 20px;
+      width: fit-content;
+    }
+
+    .tile.internal .tile-badge {
+      background: rgba(235,85,246,0.12);
+      color: var(--heliotrope);
+      border: 1px solid rgba(235,85,246,0.2);
+    }
+
+    .tile.client .tile-badge {
+      background: rgba(255,189,74,0.1);
+      color: var(--texas-rose);
+      border: 1px solid rgba(255,189,74,0.2);
+    }
+
+    .tile h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .tile p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.6;
       flex: 1;
     }
 
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: #9ca3af;
-      font-size: 1.05rem;
+    .tile-arrow {
+      margin-top: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      letter-spacing: 0.01em;
+      transition: gap .2s;
     }
 
+    .tile:hover .tile-arrow { gap: 9px; }
+
+    .tile.internal .tile-arrow { color: var(--heliotrope); }
+    .tile.client   .tile-arrow { color: var(--texas-rose); }
+
+    /* ── Listing controls ── */
+    .listing-controls {
+      margin-bottom: 28px;
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--dim);
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 11px 16px 11px 40px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      background: var(--bg2);
+      color: var(--text);
+      border: 1px solid var(--border-lg);
+      border-radius: 10px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .search-input::placeholder { color: var(--dim); }
+
+    .search-input:focus {
+      border-color: var(--portage);
+      box-shadow: 0 0 0 3px rgba(165,159,247,0.12);
+    }
+
+    /* ── Guides grid ── */
+    .guides-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .guide-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform .18s, box-shadow .18s, border-color .18s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .guide-card::after {
+      content: '→';
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 0.9rem;
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity .18s, transform .18s;
+    }
+
+    .guide-card.internal::after { color: var(--heliotrope); }
+    .guide-card.client::after   { color: var(--texas-rose); }
+
+    .guide-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-lg);
+    }
+
+    .guide-card.internal:hover { box-shadow: 0 12px 32px rgba(235,85,246,0.08); }
+    .guide-card.client:hover   { box-shadow: 0 12px 32px rgba(255,189,74,0.06); }
+
+    .guide-card:hover::after {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .guide-card .category {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 3px 8px;
+      border-radius: 4px;
+      width: fit-content;
+    }
+
+    .guide-card.internal .category {
+      background: rgba(235,85,246,0.1);
+      color: var(--heliotrope);
+    }
+
+    .guide-card.client .category {
+      background: rgba(255,189,74,0.1);
+      color: var(--texas-rose);
+    }
+
+    .guide-card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      padding-right: 20px;
+    }
+
+    .guide-card p {
+      font-size: 0.83rem;
+      color: var(--muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--dim);
+      font-size: 0.95rem;
+    }
+
+    /* ── Footer ── */
     footer {
       text-align: center;
-      padding: 2rem;
-      color: #9ca3af;
-      font-size: 0.85rem;
+      padding: 24px;
+      color: var(--dim);
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .tile, .guide-card {
+      animation: fadeUp .4s ease both;
+    }
+
+    .tile:nth-child(1) { animation-delay: .05s; }
+    .tile:nth-child(2) { animation-delay: .12s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      header { padding: 36px 20px 32px; }
+      .back-btn { left: 16px; top: 18px; transform: none; }
+      main { padding: 36px 20px 60px; }
+      .home-tiles { grid-template-columns: 1fr; }
+      .header-title { font-size: 1.7rem; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>SOB Guides</h1>
-    <p>Company guides and reference docs — all in one place.</p>
-  </header>
+<div class="page">
 
-  <main>
-    <div class="controls">
-      <input type="text" class="search-input" placeholder="Search guides..." id="search">
-      <div id="filters"></div>
+<header>
+  <button class="back-btn" id="back-btn" style="display:none;" onclick="showHome()">&#8592; All Guides</button>
+  <div class="logo-wrap">
+    <img src="logo.png" alt="School of Bots">
+  </div>
+  <div class="header-eyebrow">Knowledge Base</div>
+  <h1 class="header-title" id="header-title">SOB Guides</h1>
+  <p class="header-sub" id="header-sub">Company guides and reference docs — all in one place.</p>
+</header>
+
+<main>
+  <!-- HOME: two tiles -->
+  <div id="view-home">
+    <div class="home-tiles">
+      <div class="tile internal" onclick="showSection('internal')">
+        <span class="tile-badge">&#128274; Internal</span>
+        <h2>Internal Guides</h2>
+        <p>Team setup, AI safety policy, tooling, and reference docs for the School of Bots team.</p>
+        <span class="tile-arrow">Browse guides &#8594;</span>
+      </div>
+      <div class="tile client" onclick="showSection('client')">
+        <span class="tile-badge">&#127775; Client</span>
+        <h2>Client-Facing Guides</h2>
+        <p>Resources designed to be shared with clients — onboarding, expectations, and more.</p>
+        <span class="tile-arrow">Browse guides &#8594;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GUIDE LISTING -->
+  <div id="view-guides">
+    <div class="listing-controls">
+      <div class="search-wrap">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" class="search-input" placeholder="Search guides..." id="search">
+      </div>
     </div>
     <div class="guides-grid" id="guides-grid"></div>
     <div class="empty-state" id="empty-state" style="display:none;">No guides match your search.</div>
-  </main>
+  </div>
+</main>
 
-  <footer>SOB Guides</footer>
+<footer>School of Bots &mdash; Internal Use Only</footer>
 
-  <script>
-    (async function () {
-      const grid = document.getElementById('guides-grid');
-      const emptyState = document.getElementById('empty-state');
-      const searchInput = document.getElementById('search');
-      const filtersEl = document.getElementById('filters');
+</div>
+<script>
+  let allGuides = [];
+  let currentSection = null;
 
-      let guides = [];
-      try {
-        const res = await fetch('guides.json');
-        guides = await res.json();
-      } catch (e) {
-        grid.innerHTML = '<p style="color:#ef4444;">Could not load guides.json</p>';
-        return;
-      }
+  async function loadGuides() {
+    try {
+      const res = await fetch('guides.json');
+      allGuides = await res.json();
+    } catch (e) {
+      document.getElementById('guides-grid').innerHTML = '<p style="color:#ef4444;">Could not load guides.json</p>';
+    }
+  }
 
-      // Build category filters
-      const categories = [...new Set(guides.map(g => g.category))];
-      let activeCategory = null;
+  function showHome() {
+    currentSection = null;
+    document.getElementById('view-home').style.display = 'block';
+    document.getElementById('view-guides').style.display = 'none';
+    document.getElementById('back-btn').style.display = 'none';
+    document.getElementById('header-title').textContent = 'SOB Guides';
+    document.getElementById('header-sub').textContent = 'Company guides and reference docs — all in one place.';
+    document.getElementById('search').value = '';
+    history.pushState({}, '', window.location.pathname);
+  }
 
-      if (categories.length > 1) {
-        categories.forEach(cat => {
-          const btn = document.createElement('button');
-          btn.className = 'filter-btn';
-          btn.textContent = cat;
-          btn.addEventListener('click', () => {
-            activeCategory = activeCategory === cat ? null : cat;
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            if (activeCategory) btn.classList.add('active');
-            render();
-          });
-          filtersEl.appendChild(btn);
-        });
-      }
+  function showSection(section) {
+    currentSection = section;
+    document.getElementById('view-home').style.display = 'none';
+    document.getElementById('view-guides').style.display = 'block';
+    document.getElementById('back-btn').style.display = 'flex';
 
-      function render() {
-        const query = searchInput.value.toLowerCase();
-        const filtered = guides.filter(g => {
-          const matchesSearch = g.title.toLowerCase().includes(query) || g.description.toLowerCase().includes(query);
-          const matchesCategory = !activeCategory || g.category === activeCategory;
-          return matchesSearch && matchesCategory;
-        });
+    if (section === 'internal') {
+      document.getElementById('header-title').textContent = 'Internal Guides';
+      document.getElementById('header-sub').textContent = 'For the School of Bots team.';
+    } else {
+      document.getElementById('header-title').textContent = 'Client-Facing Guides';
+      document.getElementById('header-sub').textContent = 'Resources you can share directly with clients.';
+    }
 
-        grid.innerHTML = '';
-        emptyState.style.display = filtered.length === 0 ? 'block' : 'none';
+    history.pushState({ section }, '', '?view=' + section);
+    render();
+  }
 
-        filtered.forEach(g => {
-          const a = document.createElement('a');
-          a.className = 'guide-card';
-          a.href = g.file;
-          a.innerHTML = `
-            <span class="category">${g.category}</span>
-            <h2>${g.title}</h2>
-            <p>${g.description}</p>
-          `;
-          grid.appendChild(a);
-        });
-      }
+  function render() {
+    const query = document.getElementById('search').value.toLowerCase();
+    const grid = document.getElementById('guides-grid');
+    const emptyState = document.getElementById('empty-state');
 
-      searchInput.addEventListener('input', render);
-      render();
-    })();
-  </script>
+    const filtered = allGuides.filter(g =>
+      g.audience === currentSection &&
+      (g.title.toLowerCase().includes(query) || g.description.toLowerCase().includes(query))
+    );
+
+    grid.innerHTML = '';
+    emptyState.style.display = filtered.length === 0 ? 'block' : 'none';
+
+    filtered.forEach(g => {
+      const a = document.createElement('a');
+      a.className = 'guide-card ' + g.audience;
+      a.href = g.file;
+      if (g.file.startsWith('http')) a.target = '_blank';
+      a.innerHTML = `
+        <span class="category">${g.category}</span>
+        <h2>${g.title}</h2>
+        <p>${g.description}</p>
+      `;
+      grid.appendChild(a);
+    });
+  }
+
+  // Handle browser back/forward
+  window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.section) {
+      showSection(e.state.section);
+    } else {
+      showHome();
+    }
+  });
+
+  // Init
+  (async function () {
+    await loadGuides();
+    const params = new URLSearchParams(window.location.search);
+    const view = params.get('view');
+    if (view === 'internal' || view === 'client') {
+      showSection(view);
+    }
+  })();
+
+  document.getElementById('search').addEventListener('input', render);
+</script>
 </body>
 </html>
