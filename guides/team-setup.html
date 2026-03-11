@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Setup Guide — SOB</title>
+  <style>
+    :root {
+      --bg-primary: #0f1117;
+      --bg-secondary: #161822;
+      --bg-card: #1c1f2e;
+      --bg-surface: #232738;
+      --bg-hover: #2a2e42;
+      --gold: #d4a853;
+      --gold-light: #f0d78c;
+      --gold-dim: rgba(212,168,83,.15);
+      --gold-border: rgba(212,168,83,.25);
+      --text-primary: #e8e8ed;
+      --text-secondary: #8892a4;
+      --text-dim: #5a6178;
+      --green: #4ade80;
+      --green-dim: rgba(74,222,128,.12);
+      --red: #f87171;
+      --red-dim: rgba(248,113,113,.1);
+      --blue: #60a5fa;
+      --border: rgba(255,255,255,.06);
+      --border-light: rgba(255,255,255,.1);
+      --radius: 12px;
+      --sidebar-width: 280px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      font-size: 15px;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform .3s ease;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-header a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color .2s;
+    }
+
+    .sidebar-header a:hover { color: var(--gold); }
+
+    .sidebar-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 12px;
+      line-height: 1.3;
+    }
+
+    .sidebar-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar { width: 4px; }
+    .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+
+    .nav-section-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      padding: 12px 20px 6px;
+      font-weight: 600;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: background .15s;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+    .nav-item.active {
+      background: var(--gold-dim);
+      color: var(--gold-light);
+      border-right: 2px solid var(--gold);
+    }
+
+    .nav-item.completed .nav-dot {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .nav-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: 2px solid var(--text-dim);
+      flex-shrink: 0;
+      margin-top: 5px;
+      transition: all .2s;
+    }
+
+    .nav-item.active .nav-dot {
+      border-color: var(--gold);
+      background: var(--gold);
+    }
+
+    .nav-time {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    /* ── Main Content ── */
+    .main {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+    }
+
+    .content-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 40px 120px;
+    }
+
+    /* ── Part Header ── */
+    .part-header {
+      margin-bottom: 40px;
+    }
+
+    .part-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .part-title {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .part-description {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .part-meta {
+      display: flex;
+      gap: 20px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .meta-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .meta-tag .icon { font-size: 0.9rem; }
+
+    /* ── Section (Part) ── */
+    .part-section {
+      display: none;
+    }
+
+    .part-section.active {
+      display: block;
+    }
+
+    /* ── Steps ── */
+    .step {
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+
+    .step:hover { border-color: var(--border-light); }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      cursor: pointer;
+      background: var(--bg-card);
+      user-select: none;
+      transition: background .15s;
+    }
+
+    .step-header:hover { background: var(--bg-surface); }
+
+    .step-number {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--gold-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--gold);
+      flex-shrink: 0;
+      transition: all .2s;
+    }
+
+    .step.open .step-number {
+      background: var(--gold);
+      color: var(--bg-primary);
+      border-color: var(--gold);
+    }
+
+    .step-title {
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .step-arrow {
+      color: var(--text-dim);
+      transition: transform .2s;
+      font-size: 0.8rem;
+    }
+
+    .step.open .step-arrow { transform: rotate(90deg); }
+
+    .step-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease;
+    }
+
+    .step.open .step-content {
+      max-height: 3000px;
+    }
+
+    .step-body {
+      padding: 4px 20px 24px 66px;
+      border-top: 1px solid var(--border);
+    }
+
+    .step-body p { margin: 12px 0; }
+    .step-body ol, .step-body ul { margin: 12px 0; padding-left: 20px; }
+    .step-body li { margin: 6px 0; }
+
+    /* ── Code Blocks ── */
+    .code-block {
+      position: relative;
+      background: #0d1117;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      margin: 14px 0;
+      overflow: hidden;
+    }
+
+    .code-block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 14px;
+      background: rgba(255,255,255,.03);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      padding: 3px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-family: var(--font);
+      transition: all .15s;
+    }
+
+    .copy-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border-color: var(--gold-border);
+    }
+
+    .copy-btn.copied {
+      color: var(--green);
+      border-color: var(--green);
+    }
+
+    .code-block pre {
+      padding: 14px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: #c9d1d9;
+    }
+
+    .code-block pre::-webkit-scrollbar { height: 4px; }
+    .code-block pre::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+
+    /* ── Inline code ── */
+    code:not(pre code) {
+      background: var(--bg-surface);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.85em;
+      color: var(--gold-light);
+      border: 1px solid var(--border);
+    }
+
+    /* ── Callouts ── */
+    .callout {
+      padding: 16px 20px;
+      border-radius: var(--radius);
+      margin: 16px 0;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .callout-success {
+      background: var(--green-dim);
+      border: 1px solid rgba(74,222,128,.2);
+    }
+    .callout-success .callout-title { color: var(--green); }
+
+    .callout-warning {
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+    }
+    .callout-warning .callout-title { color: var(--gold); }
+
+    .callout-danger {
+      background: var(--red-dim);
+      border: 1px solid rgba(248,113,113,.2);
+    }
+    .callout-danger .callout-title { color: var(--red); }
+
+    .callout-info {
+      background: rgba(96,165,250,.08);
+      border: 1px solid rgba(96,165,250,.2);
+    }
+    .callout-info .callout-title { color: var(--blue); }
+
+    /* ── Completion Check ── */
+    .completion-check {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin: 32px 0;
+    }
+
+    .completion-check h4 {
+      color: var(--green);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .check-item::before {
+      content: '○';
+      color: var(--text-dim);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── Navigation Buttons ── */
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 48px;
+      gap: 16px;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: var(--font);
+    }
+
+    .nav-btn:hover {
+      background: var(--bg-surface);
+      border-color: var(--gold-border);
+    }
+
+    .nav-btn.primary {
+      background: var(--gold);
+      color: var(--bg-primary);
+      border-color: var(--gold);
+    }
+
+    .nav-btn.primary:hover {
+      background: var(--gold-light);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* ── Tables ── */
+    .guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+    }
+
+    .guide-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--gold);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .guide-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .guide-table tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* ── Prompt Block (special code block for Claude prompts) ── */
+    .prompt-block {
+      position: relative;
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-surface));
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius);
+      margin: 16px 0;
+      overflow: hidden;
+    }
+
+    .prompt-block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: var(--gold-dim);
+      border-bottom: 1px solid var(--gold-border);
+      font-size: 0.78rem;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .prompt-block pre {
+      padding: 16px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    /* ── Section dividers ── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 32px 0;
+    }
+
+    h2.section-heading {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 32px 0 16px;
+      color: var(--text-primary);
+    }
+
+    h3.sub-heading {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 20px 0 10px;
+      color: var(--text-primary);
+    }
+
+    .body-text {
+      color: var(--text-secondary);
+      margin: 12px 0;
+      line-height: 1.7;
+    }
+
+    strong { color: var(--text-primary); }
+
+    /* ── Hamburger (mobile) ── */
+    .hamburger {
+      display: none;
+      position: fixed;
+      top: 16px; left: 16px;
+      z-index: 200;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 90;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+      .hamburger { display: block; }
+      .main { margin-left: 0; }
+      .content-wrapper { padding: 48px 24px 120px; }
+    }
+
+    @media (max-width: 600px) {
+      .content-wrapper { padding: 48px 16px 100px; }
+      .part-title { font-size: 1.5rem; }
+      .step-body { padding-left: 20px; }
+      .nav-buttons { flex-direction: column; }
+      .part-meta { flex-direction: column; gap: 8px; }
+    }
+
+    /* ── Shortcut grid ── */
+    .shortcut-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .shortcut-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .shortcut-key {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      background: var(--bg-surface);
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border-light);
+      color: var(--gold-light);
+      white-space: nowrap;
+    }
+
+    .shortcut-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* Fade in */
+    .fade-in {
+      animation: fadeIn .4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hamburger -->
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">&#9776;</button>
+  <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html">&larr; All Guides</a>
+      <div class="sidebar-title">Team Setup Guide</div>
+      <div class="sidebar-subtitle">Cursor + Claude Code + GitHub</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Admin Pre-Work</div>
+      <a class="nav-item active" data-part="0" onclick="goToPart(0)">
+        <span class="nav-dot"></span>
+        <span>
+          Before They Start
+          <div class="nav-time">Admin only</div>
+        </span>
+      </a>
+
+      <div class="nav-section-label">Setup Call (~30 min)</div>
+      <a class="nav-item" data-part="1" onclick="goToPart(1)">
+        <span class="nav-dot"></span>
+        <span>
+          Download & Open Cursor
+          <div class="nav-time">~3 min</div>
+        </span>
+      </a>
+      <a class="nav-item" data-part="2" onclick="goToPart(2)">
+        <span class="nav-dot"></span>
+        <span>
+          Install Claude Code
+          <div class="nav-time">~5 min</div>
+        </span>
+      </a>
+      <a class="nav-item" data-part="3" onclick="goToPart(3)">
+        <span class="nav-dot"></span>
+        <span>
+          Let Claude Do the Rest
+          <div class="nav-time">~15 min</div>
+        </span>
+      </a>
+      <a class="nav-item" data-part="4" onclick="goToPart(4)">
+        <span class="nav-dot"></span>
+        <span>
+          Open the Project
+          <div class="nav-time">~2 min</div>
+        </span>
+      </a>
+      <a class="nav-item" data-part="5" onclick="goToPart(5)">
+        <span class="nav-dot"></span>
+        <span>
+          API Keys & Connections
+          <div class="nav-time">~5 min</div>
+        </span>
+      </a>
+      <a class="nav-item" data-part="6" onclick="goToPart(6)">
+        <span class="nav-dot"></span>
+        <span>
+          Slash Commands & Settings
+          <div class="nav-time">~3 min</div>
+        </span>
+      </a>
+      <a class="nav-item" data-part="7" onclick="goToPart(7)">
+        <span class="nav-dot"></span>
+        <span>
+          Verify Everything Works
+          <div class="nav-time">~2 min</div>
+        </span>
+      </a>
+
+      <div class="nav-section-label">Reference</div>
+      <a class="nav-item" data-part="8" onclick="goToPart(8)">
+        <span class="nav-dot"></span>
+        <span>
+          Daily Workflow
+        </span>
+      </a>
+      <a class="nav-item" data-part="9" onclick="goToPart(9)">
+        <span class="nav-dot"></span>
+        <span>
+          Shortcuts & Troubleshooting
+        </span>
+      </a>
+
+      <div class="nav-section-label">Handbook</div>
+      <a class="nav-item" data-part="10" onclick="goToPart(10)">
+        <span class="nav-dot"></span>
+        <span>
+          How Our Systems Work
+        </span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="content-wrapper">
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 0: Admin Pre-Work                -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section active" data-part="0">
+        <div class="part-header fade-in">
+          <div class="part-label">Admin Pre-Work</div>
+          <h1 class="part-title">Before They Start</h1>
+          <p class="part-description">Complete ALL of these steps before scheduling the setup call. The team member cannot proceed without these.</p>
+          <div class="part-meta">
+            <span class="meta-tag"><span class="icon">&#128274;</span> Admin only</span>
+            <span class="meta-tag"><span class="icon">&#9202;</span> 15–20 min</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">A</div>
+            <div class="step-title">Get Their GitHub Username</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Ask the team member to either:</p>
+              <ul>
+                <li>Send you their existing GitHub username, OR</li>
+                <li>Go to <strong>github.com</strong> &rarr; Sign Up &rarr; Continue with Google (work account) &rarr; pick a work-friendly username &rarr; send it to you</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">B</div>
+            <div class="step-title">Add a Seat to the GitHub Organization</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="callout callout-danger">
+                <div class="callout-title">&#9888; Lesson learned</div>
+                If you skip this, the invite in Step C will fail. The org needs an available seat first.
+              </div>
+              <ol>
+                <li>Go to <strong>github.com/orgs/School-of-Bots/people</strong></li>
+                <li>Confirm there is an available seat, or add one under <strong>Settings &rarr; Billing &rarr; Seats</strong></li>
+                <li>Then proceed to Step C</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">C</div>
+            <div class="step-title">Invite Them to the GitHub Repo</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p><strong>Option 1</strong> — Slash Command in Claude Code:</p>
+              <div class="code-block">
+                <div class="code-block-header"><span>Claude Code</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre>/add-github-member [their-github-username]</pre>
+              </div>
+              <p><strong>Option 2</strong> — Manual:</p>
+              <ol>
+                <li>Go to <strong>github.com/orgs/School-of-Bots/people</strong> &rarr; Invite member</li>
+                <li>Enter their username &rarr; set role to <strong>Member</strong></li>
+              </ol>
+              <p>They will receive an email. Tell them to accept before the setup call.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">D</div>
+            <div class="step-title">Invite Them to the Claude Console</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="callout callout-danger">
+                <div class="callout-title">&#9888; Do not delete individual accounts</div>
+                If they already have a personal Claude Console account, the org invite adds to it. They should NOT delete their individual account &mdash; doing so locks them out entirely and requires Anthropic support to recover.
+              </div>
+              <ol>
+                <li>Go to <strong>console.anthropic.com/settings/members</strong></li>
+                <li>Click <strong>Invite</strong> &rarr; enter their work email &rarr; set role to <strong>User</strong></li>
+                <li>Tell them to <strong>accept the email invite</strong> before the setup call</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">E</div>
+            <div class="step-title">Invite Them to the Cursor Team</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ol>
+                <li>Go to Cursor team settings (ask Natasha for admin access if needed)</li>
+                <li>Invite them using their work email</li>
+                <li>Have the team login info ready for the setup call</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">F</div>
+            <div class="step-title">Generate Their API Keys</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <h3 class="sub-heading">Anthropic API Key</h3>
+              <ol>
+                <li>Go to <strong>console.anthropic.com/settings/keys</strong></li>
+                <li>Click <strong>Create Key</strong> &rarr; name it after the team member (e.g., <code>kat-sob-dfy</code>)</li>
+                <li>Copy the key immediately &mdash; it starts with <code>sk-ant-</code>. You cannot view it again.</li>
+              </ol>
+              <h3 class="sub-heading">Airtable API Key</h3>
+              <ol>
+                <li>Go to <strong>airtable.com/create/tokens</strong></li>
+                <li>Click <strong>Create new token</strong> &rarr; name it after the team member</li>
+                <li>Under <strong>Scopes</strong>, add: <code>data.records:read</code></li>
+                <li>Under <strong>Access</strong>, add the <strong>Accounts</strong> base</li>
+                <li>Click <strong>Create token</strong> &rarr; copy the key</li>
+              </ol>
+              <p>Save both keys securely &mdash; you'll paste them during the setup call.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">G</div>
+            <div class="step-title">Send the "You're Ready" Message</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Once Steps A&ndash;F are complete, send this to the team member:</p>
+              <div class="prompt-block">
+                <div class="prompt-block-header"><span>Message Template</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre>Hey! You're all set for the setup call. Before we meet:
+1. Accept the GitHub invite in your email (from School-of-Bots)
+2. Accept the Claude Console invite in your email (from Anthropic)
+3. Download Cursor from https://www.cursor.com and drag it into Applications
+4. Have your Mac password handy
+
+That's it — we'll handle the rest together on the call. Should take about 30 minutes.</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="completion-check">
+          <h4>&#10003; You're done when</h4>
+          <div class="check-item">GitHub org has an available seat and invite is sent</div>
+          <div class="check-item">Claude Console invite is sent</div>
+          <div class="check-item">Cursor team invite is sent</div>
+          <div class="check-item">Both API keys are generated and saved</div>
+          <div class="check-item">"You're Ready" message is sent to the team member</div>
+        </div>
+
+        <div class="nav-buttons">
+          <span></span>
+          <button class="nav-btn primary" onclick="goToPart(1)">Start Setup Call &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 1: Open Cursor & Sign In         -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="1">
+        <div class="part-header fade-in">
+          <div class="part-label">Phase 1 of 7</div>
+          <h1 class="part-title">Download, Open & Sign In to Cursor</h1>
+          <p class="part-description">Download the app, install it, and sign in with the team account.</p>
+          <div class="part-meta">
+            <span class="meta-tag"><span class="icon">&#9202;</span> ~3 min</span>
+          </div>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">Download & Install Cursor</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ol>
+                <li>Go to <strong>cursor.com</strong> in your browser</li>
+                <li>Click the <strong>Download</strong> button (it will detect you're on Mac automatically)</li>
+                <li>Once downloaded, open the <code>.dmg</code> file from your Downloads folder</li>
+                <li>Drag the <strong>Cursor</strong> icon into the <strong>Applications</strong> folder</li>
+                <li>Wait for the copy to finish, then close the installer window</li>
+              </ol>
+              <div class="callout callout-info">
+                <div class="callout-title">&#128161; Already downloaded?</div>
+                If you downloaded Cursor before the call (from the pre-work message), skip to Step 2.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">Open Cursor</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ol>
+                <li>Open <strong>Finder</strong> &rarr; go to <strong>Applications</strong></li>
+                <li>Double-click <strong>Cursor</strong> to open it</li>
+                <li>If macOS asks "Are you sure you want to open this?" &mdash; click <strong>Open</strong></li>
+                <li>Skip any extra prompts or tutorials for now</li>
+              </ol>
+              <div class="callout callout-warning">
+                <div class="callout-title">&#9888; If macOS blocks it</div>
+                Go to <strong>System Settings &rarr; Privacy & Security</strong> &rarr; scroll down and click <strong>Open Anyway</strong> next to the Cursor message.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">Sign In with the Team Account</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ol>
+                <li>Click <strong>Login</strong> when prompted (or go to the account section)</li>
+                <li>Use the team Cursor credentials (admin provides these)</li>
+                <li>Click <strong>Yes, Login</strong> to confirm</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="completion-check">
+          <h4>&#10003; You're done when</h4>
+          <div class="check-item">Cursor is open showing a blank editor or welcome screen</div>
+          <div class="check-item">You're signed into the team account</div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(0)">&larr; Pre-Work</button>
+          <button class="nav-btn primary" onclick="goToPart(2)">Install Claude Code &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 2: Install Claude Code           -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="2">
+        <div class="part-header fade-in">
+          <div class="part-label">Phase 2 of 7</div>
+          <h1 class="part-title">Install Claude Code</h1>
+          <p class="part-description">Get the Claude Code extension running inside Cursor. This gives you a chat interface that will handle the rest of the setup.</p>
+          <div class="part-meta">
+            <span class="meta-tag"><span class="icon">&#9202;</span> ~5 min</span>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-title">&#128161; Why extension first?</div>
+          The Claude Code extension gives you a chat interface immediately. Once it's working, Claude handles installing everything else &mdash; no manual terminal commands needed.
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">Open the Extensions Panel</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Press <code>Cmd + Shift + X</code> to open Extensions.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">Search and Install</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ol>
+                <li>Search for <strong>"Claude Code"</strong></li>
+                <li>Click <strong>Install</strong></li>
+                <li>Wait for it to finish installing</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">3</div>
+            <div class="step-title">Open Claude Code</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ol>
+                <li>Press <code>Cmd + Shift + P</code> to open the command palette</li>
+                <li>Type <strong>"Claude Code: Open"</strong> and select it</li>
+                <li>Follow the login prompts &mdash; use the team account credentials</li>
+              </ol>
+              <div class="callout callout-success">
+                <div class="callout-title">&#10003; What you should see</div>
+                A Claude Code chat panel where you can type messages.
+              </div>
+              <div class="callout callout-warning">
+                <div class="callout-title">Not showing up?</div>
+                Make sure you're signed into the team Cursor account. Restart Cursor (<code>Cmd + Q</code> &rarr; reopen) and try again.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="completion-check">
+          <h4>&#10003; You're done when</h4>
+          <div class="check-item">Claude Code extension is installed</div>
+          <div class="check-item">You can see the Claude Code chat panel</div>
+          <div class="check-item">You're logged in and can type messages</div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(1)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(3)">Let Claude Do the Rest &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 3: Let Claude Do the Rest        -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="3">
+        <div class="part-header fade-in">
+          <div class="part-label">Phase 3 of 7</div>
+          <h1 class="part-title">Let Claude Do the Rest</h1>
+          <p class="part-description">One prompt. Claude installs Homebrew, Git, GitHub CLI, Node.js, authenticates with GitHub, and clones the team repo.</p>
+          <div class="part-meta">
+            <span class="meta-tag"><span class="icon">&#9202;</span> ~15 min</span>
+            <span class="meta-tag"><span class="icon">&#129302;</span> Claude handles this</span>
+          </div>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">Paste the Setup Prompt into Claude Code</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Copy this entire prompt and paste it into the Claude Code chat:</p>
+              <div class="prompt-block">
+                <div class="prompt-block-header"><span>Paste into Claude Code</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre>I'm a new team member setting up my machine for the first time. I need you to do the following — handle each step and confirm when it's done before moving to the next:
+
+1. Install Homebrew (if not already installed)
+2. Install Git and GitHub CLI using Homebrew
+3. Install Node.js using Homebrew
+4. Verify all three are installed by checking their versions
+5. Authenticate with GitHub using: gh auth login (use SSH, generate a new SSH key, login with web browser)
+6. Clone the team repo: git clone git@github.com:School-of-Bots/done-for-you-division.git ~/Documents/SOB-DFY
+7. Set my Git identity — ask me for my name and email before running the commands
+8. Confirm the repo cloned successfully by listing the contents of ~/Documents/SOB-DFY
+
+Do each step one at a time. Tell me if anything needs my input (like a password or browser confirmation). Do not skip ahead.</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">Follow Claude's Prompts</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Claude will walk you through each step. Here's what to expect:</p>
+              <table class="guide-table">
+                <tr><th>When Claude says...</th><th>You do...</th></tr>
+                <tr><td>Asks for your Mac password</td><td>Type it &mdash; nothing shows on screen (that's normal)</td></tr>
+                <tr><td>"Press RETURN to continue"</td><td>Hit Enter</td></tr>
+                <tr><td>Opens a browser for GitHub</td><td>Enter the code shown, click Continue, then Authorize</td></tr>
+                <tr><td>Asks for an SSH passphrase</td><td>Use your Mac password</td></tr>
+                <tr><td>Asks for your name and email</td><td>Give your full name and your work email</td></tr>
+              </table>
+
+              <div class="callout callout-warning">
+                <div class="callout-title">&#128338; Terminal password is invisible</div>
+                When macOS asks for your password in the terminal, nothing shows as you type &mdash; no dots, no cursor movement. This is normal. Just type your password and hit Enter.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="completion-check">
+          <h4>&#10003; You're done when</h4>
+          <div class="check-item">Claude confirms Homebrew, Git, GitHub CLI, and Node.js are installed</div>
+          <div class="check-item">You're authenticated with GitHub (you saw "Logged in as YOUR-USERNAME")</div>
+          <div class="check-item">Claude lists the contents of ~/Documents/SOB-DFY showing folders like <code>skills</code>, <code>context-library</code></div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(2)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(4)">Open the Project &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 4: Open the Project              -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="4">
+        <div class="part-header fade-in">
+          <div class="part-label">Phase 4 of 7</div>
+          <h1 class="part-title">Open the Project</h1>
+          <p class="part-description">Point Cursor at the team files so Claude can see everything.</p>
+          <div class="part-meta">
+            <span class="meta-tag"><span class="icon">&#9202;</span> ~2 min</span>
+          </div>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">Open the SOB-DFY Folder</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ol>
+                <li>Look at the <strong>very top of your screen</strong> &mdash; your Mac's menu bar (not inside the Cursor window). You'll see: <strong>Cursor &nbsp; File &nbsp; Edit &nbsp; Selection...</strong></li>
+                <li>Click <strong>File</strong> in that top menu bar &rarr; then click <strong>Open Folder</strong></li>
+                <li>A Finder window will pop up. Navigate to <strong>Documents &rarr; SOB-DFY</strong></li>
+                <li>Click <strong>Open</strong> in the bottom-right corner</li>
+                <li>If asked "Do you trust the authors of the files in this folder?" &rarr; click <strong>Yes, I trust the authors</strong></li>
+              </ol>
+              <div class="callout callout-warning">
+                <div class="callout-title">&#9888; Don't confuse this with the file explorer</div>
+                The <strong>File</strong> menu is at the very top of your screen in the Mac menu bar &mdash; not the file explorer panel on the left side of Cursor. They're different things.
+              </div>
+              <div class="callout callout-info">
+                <div class="callout-title">&#128204; Important</div>
+                This is your permanent Cursor project. Open it every day &mdash; do not create a new one. Never move or rename the SOB-DFY folder.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="completion-check">
+          <h4>&#10003; You're done when</h4>
+          <div class="check-item">The file explorer on the left shows folders like <code>context-library</code>, <code>skills</code>, <code>commands</code></div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(3)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(5)">API Keys & Connections &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 5: API Keys & Connections        -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="5">
+        <div class="part-header fade-in">
+          <div class="part-label">Phase 5 of 7</div>
+          <h1 class="part-title">API Keys & Connections</h1>
+          <p class="part-description">Connect Claude to Airtable, Notion, and the Anthropic API. The admin should have your keys ready.</p>
+          <div class="part-meta">
+            <span class="meta-tag"><span class="icon">&#9202;</span> ~5 min</span>
+            <span class="meta-tag"><span class="icon">&#128273;</span> Admin provides keys</span>
+          </div>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">Paste the Connection Prompt into Claude Code</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>The admin will paste your API keys into this prompt. Copy the completed version into Claude Code:</p>
+              <div class="prompt-block">
+                <div class="prompt-block-header"><span>Paste into Claude Code (admin fills in keys first)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre>I need you to set up my API keys and MCP connections. Here are my keys:
+
+ANTHROPIC_API_KEY: [admin pastes key here]
+AIRTABLE_API_KEY: [admin pastes key here]
+
+Please:
+1. Add both keys to my ~/.zshrc file as exports
+2. Source the file so they take effect
+3. Verify both keys are set by echoing them
+4. Create ~/.claude/mcp.json with the following MCP servers:
+   - context7: npx -y @upstash/context7-mcp
+   - notion: http type, url https://mcp.notion.com/mcp
+   - airtable: npx -y airtable-mcp-server with my AIRTABLE_API_KEY as env var
+5. Confirm the mcp.json file was created correctly
+
+Do not proceed to the next step until the previous one is confirmed working.</pre>
+              </div>
+              <div class="callout callout-warning">
+                <div class="callout-title">&#128274; Security note</div>
+                API keys are private passwords. Never share them in Slack, paste them into public channels, or commit them to GitHub.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="completion-check">
+          <h4>&#10003; You're done when</h4>
+          <div class="check-item">Claude confirms both API keys are set (echoing them shows values)</div>
+          <div class="check-item">Claude confirms <code>~/.claude/mcp.json</code> was created with all three servers</div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(4)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(6)">Slash Commands & Settings &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 6: Slash Commands & Settings     -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="6">
+        <div class="part-header fade-in">
+          <div class="part-label">Phase 6 of 7</div>
+          <h1 class="part-title">Slash Commands & Settings</h1>
+          <p class="part-description">Copy your role's commands and configure Claude Code permissions.</p>
+          <div class="part-meta">
+            <span class="meta-tag"><span class="icon">&#9202;</span> ~3 min</span>
+            <span class="meta-tag"><span class="icon">&#129302;</span> Claude handles this</span>
+          </div>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">Paste the Config Prompt into Claude Code</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="prompt-block">
+                <div class="prompt-block-header"><span>Paste into Claude Code</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre>Please:
+1. Copy all files from ~/Documents/SOB-DFY/.claude/commands/ to ~/.claude/commands/ (create the directory if needed)
+2. List what was copied so I can confirm
+3. Create ~/.claude/settings.json with these permissions and plugins:
+   - Allow: python3, pip, pip3, git, gh, curl, mkdir, cp, mv, rm, ls, node, npm, npx, brew
+   - Enable plugins: frontend-design, plugin-dev, feature-dev, github, code-review, figma, Notion, stripe, skill-creator (all @claude-plugins-official)
+4. Confirm both files were created</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="completion-check">
+          <h4>&#10003; You're done when</h4>
+          <div class="check-item">Claude lists the copied command files (<code>.md</code> files)</div>
+          <div class="check-item">Claude confirms <code>settings.json</code> was created</div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(5)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(7)">Verify Everything &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 7: Verify Everything Works       -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="7">
+        <div class="part-header fade-in">
+          <div class="part-label">Phase 7 of 7</div>
+          <h1 class="part-title">Verify Everything Works</h1>
+          <p class="part-description">Run these checks to confirm the setup is complete. If anything fails, Claude can troubleshoot for you.</p>
+          <div class="part-meta">
+            <span class="meta-tag"><span class="icon">&#9202;</span> ~2 min</span>
+          </div>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">Check Git</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Open Terminal in Cursor (<code>Ctrl + `</code>) and run:</p>
+              <div class="code-block">
+                <div class="code-block-header"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre>cd ~/Documents/SOB-DFY && git status</pre>
+              </div>
+              <div class="callout callout-success">
+                <div class="callout-title">&#10003; Expected</div>
+                <code>On branch main</code> and <code>nothing to commit, working tree clean</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">Check API Keys</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="code-block">
+                <div class="code-block-header"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre>echo $ANTHROPIC_API_KEY && echo $AIRTABLE_API_KEY</pre>
+              </div>
+              <div class="callout callout-success">
+                <div class="callout-title">&#10003; Expected</div>
+                Both commands print your keys. If either prints nothing, tell Claude Code: "My API key is not set. Help me add it to ~/.zshrc."
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">3</div>
+            <div class="step-title">Test Claude Code</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>In Claude Code, type:</p>
+              <div class="prompt-block">
+                <div class="prompt-block-header"><span>Claude Code</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre>What files are in this project?</pre>
+              </div>
+              <div class="callout callout-success">
+                <div class="callout-title">&#10003; Expected</div>
+                Claude lists folders like <code>context-library</code>, <code>skills</code>, <code>dm-funnel-playbooks</code>, etc.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">4</div>
+            <div class="step-title">Test a Slash Command</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Run your role's starter command with a real client name. Your lead will tell you which command to try.</p>
+              <div class="callout callout-success">
+                <div class="callout-title">&#10003; Expected</div>
+                Claude pulls live data from Airtable and produces a structured output.
+              </div>
+              <div class="callout callout-warning">
+                <div class="callout-title">Command not recognized?</div>
+                Run <code>ls ~/.claude/commands/</code> to confirm files are there. If empty, go back to Phase 6. If files are there, restart Cursor.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="completion-check">
+          <h4>&#127881; Setup Complete!</h4>
+          <div class="check-item">Git is connected and the repo is clean</div>
+          <div class="check-item">Both API keys are set</div>
+          <div class="check-item">Claude Code responds to questions</div>
+          <div class="check-item">A slash command ran successfully</div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(6)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(8)">Daily Workflow &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 8: Daily Workflow                -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="8">
+        <div class="part-header fade-in">
+          <div class="part-label">Reference</div>
+          <h1 class="part-title">Your Daily Workflow</h1>
+          <p class="part-description">Do this every single workday. It becomes second nature after a week.</p>
+        </div>
+
+        <h2 class="section-heading">Every Morning</h2>
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">Pull Latest & Create Your Branch</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ol>
+                <li>Open Cursor &rarr; SOB-DFY project</li>
+                <li>Check the <strong>bottom-left corner</strong> &mdash; branch must say <strong>main</strong>. If not, click it and select main.</li>
+                <li>Open Terminal (<code>Ctrl + `</code>) and run:</li>
+              </ol>
+              <div class="code-block">
+                <div class="code-block-header"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre>git pull origin main</pre>
+              </div>
+              <ol start="4">
+                <li>Create today's branch: click the branch name &rarr; <strong>Create new branch</strong> &rarr; name it <code>yourname-MM-DD-YY</code></li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="section-heading">During the Day</h2>
+        <p class="body-text">Work normally in Cursor. Run slash commands. Save with <code>Cmd + S</code>. No Git steps needed mid-day.</p>
+
+        <h2 class="section-heading">Every Evening</h2>
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">Commit, Push & Create PR</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ol>
+                <li>Click <strong>View &rarr; Source Control</strong></li>
+                <li>Hover over <strong>Changes</strong> &rarr; click the <strong>+</strong> icon to stage</li>
+                <li>Write a commit message: one clear sentence<br>(e.g., <code>yourname 03-11-26 &mdash; updated client context files</code>)</li>
+                <li>Click the <strong>Commit</strong> button (checkmark icon)</li>
+                <li>Click <strong>Publish Branch</strong> (first time) or <strong>Sync Changes</strong></li>
+                <li>In Terminal, run:</li>
+              </ol>
+              <div class="code-block">
+                <div class="code-block-header"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre>gh pr create --fill</pre>
+              </div>
+              <div class="callout callout-success">
+                <div class="callout-title">&#10003; You're done when</div>
+                You see a URL like <code>https://github.com/School-of-Bots/.../pull/XX</code>
+              </div>
+              <p><strong>What happens overnight:</strong> Leadership reviews all pull requests before 9 AM EST. When you pull main the next morning, your approved changes are in there.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(7)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(9)">Shortcuts & Troubleshooting &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 9: Shortcuts & Troubleshooting   -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="9">
+        <div class="part-header fade-in">
+          <div class="part-label">Reference</div>
+          <h1 class="part-title">Shortcuts & Troubleshooting</h1>
+          <p class="part-description">Quick reference for keyboard shortcuts and common issues.</p>
+        </div>
+
+        <h2 class="section-heading">Keyboard Shortcuts</h2>
+        <div class="shortcut-grid">
+          <div class="shortcut-item"><span class="shortcut-key">Cmd+Shift+P</span><span class="shortcut-label">Command Palette</span></div>
+          <div class="shortcut-item"><span class="shortcut-key">Cmd+Shift+X</span><span class="shortcut-label">Extensions</span></div>
+          <div class="shortcut-item"><span class="shortcut-key">Cmd+I</span><span class="shortcut-label">Claude Code Chat</span></div>
+          <div class="shortcut-item"><span class="shortcut-key">Cmd+B</span><span class="shortcut-label">File Explorer</span></div>
+          <div class="shortcut-item"><span class="shortcut-key">Ctrl+`</span><span class="shortcut-label">Terminal</span></div>
+          <div class="shortcut-item"><span class="shortcut-key">Cmd+S</span><span class="shortcut-label">Save</span></div>
+          <div class="shortcut-item"><span class="shortcut-key">Cmd+P</span><span class="shortcut-label">Quick Open File</span></div>
+          <div class="shortcut-item"><span class="shortcut-key">Cmd+Q</span><span class="shortcut-label">Quit / Restart</span></div>
+        </div>
+
+        <hr class="section-divider">
+
+        <h2 class="section-heading">Troubleshooting</h2>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">?</div>
+            <div class="step-title">"Permission denied (publickey)"</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Run <code>gh auth login</code> again and choose SSH. If that doesn't work, ask Claude Code to help you set up SSH authentication.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">?</div>
+            <div class="step-title">"brew: command not found"</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Close Terminal completely (<code>Cmd + Q</code>), reopen, try <code>brew --version</code>. If still not found, ask Claude Code to install Homebrew for you.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">?</div>
+            <div class="step-title">Claude Code doesn't open</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Press <code>Cmd + Shift + X</code> &rarr; search "Claude Code" &rarr; install if missing. Make sure you're signed into the team Cursor account. Restart Cursor.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">?</div>
+            <div class="step-title">API key returns nothing</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Tell Claude Code: <em>"My ANTHROPIC_API_KEY is not set. Help me add it to my ~/.zshrc and source it."</em> Have your key ready to paste.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">?</div>
+            <div class="step-title">Slash command not found</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Run <code>ls ~/.claude/commands/</code> to confirm files are there. If empty, ask Claude Code to copy them from <code>~/Documents/SOB-DFY/.claude/commands/</code>. Then restart Cursor.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">?</div>
+            <div class="step-title">"gh pr create" gives an error</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Make sure you pushed your branch first. If "No commits," commit first. If "already exists," you already opened a PR today &mdash; you're done.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">!</div>
+            <div class="step-title">Terminal password is invisible</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>This is normal. When macOS asks for your password in Terminal, nothing shows as you type &mdash; no dots, no cursor movement. Just type your password and hit Enter.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">!</div>
+            <div class="step-title">I accidentally deleted a file</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Tell your lead. Git keeps full history &mdash; it can always be recovered.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(8)">&larr; Daily Workflow</button>
+          <button class="nav-btn" onclick="goToPart(0)">Back to Start</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 10: AI Handbook                  -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="10">
+        <div class="part-header fade-in">
+          <div class="part-label">SOB AI Handbook</div>
+          <h1 class="part-title">How Our Systems Work</h1>
+          <p class="part-description">The reference guide for SOB's AI system. What our tools are, how they connect, how skills work, and how the architecture is structured.</p>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-title">&#128214; How to use this</div>
+          Read this once during your first week. Come back to it whenever you need to understand how a piece of the system fits together. The <a href="https://www.notion.so/31d84c0a7a0b81bd9162db8556d0eaa4" style="color: var(--blue);">AI System Rollout page</a> in Notion is the canonical source of truth for specific skill counts, file names, and command lists.
+        </div>
+
+        <!-- ── The Big Picture ── -->
+        <h2 class="section-heading">The Big Picture</h2>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">What Is Happening?</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>School of Bots has built an AI agent system that automates the repeatable work across every role in our DFY service. There are dozens of skills and slash commands deployed across all roles &mdash; and more are being added as the system evolves.</p>
+              <p>Your job is evolving. Instead of doing every task from scratch, you'll use slash commands that invoke pre-built AI skills. The skills produce first-draft outputs &mdash; you review, refine, and approve. Over time, the outputs get better and your role shifts toward <strong>quality control and client strategy</strong>.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">The Core Architecture</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="callout callout-warning">
+                <div class="callout-title">&#127919; The One Rule</div>
+                <strong>Skills are process. Context is knowledge. Keep them separate.</strong><br><br>
+                A skill tells the AI HOW to do a task. It never changes per client.<br>
+                Context tells the AI WHO it's doing it for. It changes per client.<br><br>
+                When you run a skill for Client A, it pulls Client A's context.<br>
+                When you run it for Client B, it pulls Client B's context.<br>
+                The skill itself never changes. That's the whole point.
+              </div>
+
+              <h3 class="sub-heading">The Three Layers</h3>
+              <table class="guide-table">
+                <tr><th>Layer</th><th>What Lives Here</th><th>Who Maintains It</th></tr>
+                <tr><td><strong>Skill File</strong></td><td>The instructions &mdash; how to do the task (universal, works for all clients)</td><td>Leadership (already built)</td></tr>
+                <tr><td><strong>Client Context</strong></td><td>Everything specific to this client &mdash; voice profile, approved copy, brand notes</td><td>GS + CW populate over time</td></tr>
+                <tr><td><strong>Airtable</strong></td><td>Live client data &mdash; MRR, funnel status, assigned roles, flags</td><td>Natasha / Anissa maintain</td></tr>
+              </table>
+              <p>You never need to build a separate skill for each client. One DM funnel copy skill works for every client we ever onboard.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">3</div>
+            <div class="step-title">The Four Build Layers</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <table class="guide-table">
+                <tr><th>Layer</th><th>Description</th></tr>
+                <tr><td><strong>LAYER 4: HUMAN SOPs (You Are Here)</strong></td><td>How the team uses slash commands, reviews outputs, gives feedback</td></tr>
+                <tr><td><strong>LAYER 3: AI SKILLS + SLASH COMMANDS</strong></td><td>Skills and commands &mdash; already built by leadership</td></tr>
+                <tr><td><strong>LAYER 2: FRAMEWORKS</strong></td><td>Repeatable structures, funnel playbooks, decision trees</td></tr>
+                <tr><td><strong>LAYER 1: CONTEXT LIBRARY</strong></td><td>All business knowledge &mdash; client voice profiles, brand guides, approved copy</td></tr>
+              </table>
+              <p><strong>You live in Layer 4.</strong> Your job is to use the commands, evaluate the outputs, and give feedback so the skills keep improving. Leadership handles Layers 1&ndash;3.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">4</div>
+            <div class="step-title">How the System Evolves</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <table class="guide-table">
+                <tr><th>Stage</th><th>What It Means</th><th>Example</th></tr>
+                <tr><td><strong>Skills</strong></td><td>One skill does one job. You invoke it manually.</td><td>Run a client health rating for one client.</td></tr>
+                <tr><td><strong>Workflows</strong></td><td>Multiple skills chained in sequence.</td><td>Monday: health rating &rarr; strategy &rarr; content guidance, all in one pass.</td></tr>
+                <tr><td><strong>Agents</strong></td><td>Orchestrators that decide which skills or workflows to run.</td><td>GS agent runs Monday workflow, hands off to COL agent automatically.</td></tr>
+                <tr><td><strong>Scheduled Runs</strong></td><td>Scripts run on a schedule, loop through clients, deposit outputs for review.</td><td>Every Monday 8am, every active client gets a KPI review.</td></tr>
+              </table>
+              <p>Right now, you're in the <strong>Skills + Workflows</strong> stage. The human review step never goes away.</p>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ── Your Toolbox ── -->
+        <h2 class="section-heading">Your Toolbox</h2>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">5</div>
+            <div class="step-title">The Four Tools</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <table class="guide-table">
+                <tr><th>Tool</th><th>Role</th><th>Think of it as...</th></tr>
+                <tr><td><strong>Claude.ai</strong></td><td>Think & Plan</td><td>Your brainstorming partner. Use it separately from your working files.</td></tr>
+                <tr><td><strong>Cursor</strong></td><td>Command Center</td><td>The app you work in every day. Has Claude Code built in.</td></tr>
+                <tr><td><strong>GitHub</strong></td><td>Cloud File Storage</td><td>Our Google Drive. All team files live here, fully version-tracked.</td></tr>
+                <tr><td><strong>Obsidian</strong></td><td>Knowledge Sync</td><td>Company knowledge and brand voice docs. Syncs to GitHub.</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">6</div>
+            <div class="step-title">Key Terms</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <table class="guide-table">
+                <tr><th>Term</th><th>What It Means</th></tr>
+                <tr><td><strong>Repository (repo)</strong></td><td>A shared project folder on GitHub</td></tr>
+                <tr><td><strong>Commit</strong></td><td>Saving a snapshot with a label &mdash; like hitting save with a sticky note</td></tr>
+                <tr><td><strong>Push</strong></td><td>Uploading your saved commits to GitHub</td></tr>
+                <tr><td><strong>Pull</strong></td><td>Downloading the latest changes from GitHub to your computer</td></tr>
+                <tr><td><strong>Branch</strong></td><td>Your personal working copy. Changes stay separate until reviewed.</td></tr>
+                <tr><td><strong>Pull Request (PR)</strong></td><td>Your proposal to merge today's changes. Reviewed by leadership before 9 AM.</td></tr>
+                <tr><td><strong>Slash command</strong></td><td>A shortcut that invokes a skill. Example: <code>/gs-monday [client-name]</code></td></tr>
+                <tr><td><strong>MCP</strong></td><td>A connector that plugs Claude into another tool (Notion, Airtable, Gmail, etc)</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ── How Skills Work ── -->
+        <h2 class="section-heading">How Skills Actually Work</h2>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">7</div>
+            <div class="step-title">Skill Naming Convention</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Skills are named by what they do, not which client they're for. Most include a cadence prefix:</p>
+              <table class="guide-table">
+                <tr><th>Prefix</th><th>Meaning</th></tr>
+                <tr><td><code>onboarding-</code></td><td>Used during client onboarding</td></tr>
+                <tr><td><code>daily-</code></td><td>Part of a daily rhythm</td></tr>
+                <tr><td><code>weekly-</code></td><td>Part of a weekly rhythm</td></tr>
+                <tr><td><code>biweekly-</code></td><td>Runs every two weeks</td></tr>
+                <tr><td><code>monthly-</code></td><td>Part of a monthly rhythm</td></tr>
+                <tr><td><code>od-</code></td><td>On-demand &mdash; run whenever needed</td></tr>
+              </table>
+              <p><strong>No client names in skill names.</strong> The client is specified when you invoke the command.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">8</div>
+            <div class="step-title">What Each Role's Skills Cover</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <table class="guide-table">
+                <tr><th>Role</th><th>Skill Categories</th></tr>
+                <tr><td><strong>Growth Strategist</strong></td><td>Daily performance tracking, client health assessment, funnel strategy, content direction, revenue analysis</td></tr>
+                <tr><td><strong>Copywriter</strong></td><td>Voice matching, DM funnel copy, social captions, story schedules, email sequences (select clients)</td></tr>
+                <tr><td><strong>Client Ops Lead</strong></td><td>Client communication, approval tracking, onboarding coordination, start/end of day reporting</td></tr>
+                <tr><td><strong>Automation Specialist</strong></td><td>Build specs, ManyChat audits, funnel documentation</td></tr>
+              </table>
+              <div class="callout callout-info">
+                <div class="callout-title">&#128161; Full list</div>
+                Open <code>slash-command-library.md</code> in Cursor (<code>Cmd + P</code> &rarr; type "slash-command"). That file is always up to date.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">9</div>
+            <div class="step-title">The Approved Copy Library</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Each client gets an <strong>Approved Copy Library</strong> &mdash; a structured document in Google Drive that stores:</p>
+              <ul>
+                <li>Approved hooks (tagged by funnel and date)</li>
+                <li>Approved CTAs</li>
+                <li>Recurring transition patterns</li>
+                <li>Full sequences worth reusing</li>
+                <li>Performance notes on what's worked</li>
+              </ul>
+              <p><strong>Who maintains it:</strong> The Copywriter adds approved copy after each funnel. The Growth Strategist confirms. Over time, the AI draws from real approved copy, generating funnels that feel consistent and require less client review.</p>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ── Slash Commands ── -->
+        <h2 class="section-heading">Slash Commands</h2>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">10</div>
+            <div class="step-title">How Commands Work</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ol>
+                <li>Open Cursor with the SOB-DFY project</li>
+                <li>Open Claude Code (<code>Cmd + I</code>)</li>
+                <li>Type a slash command with the client name: <code>/[role]-[command] [client-name]</code></li>
+                <li>Claude loads the skill, pulls client data from Airtable, generates the output</li>
+                <li>You review. If good, act on it. If not, give feedback.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ── New Client Process ── -->
+        <h2 class="section-heading">The 4-Step New Client Process</h2>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">11</div>
+            <div class="step-title">Every New Client Follows This Sequence</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <table class="guide-table">
+                <tr><th>Step</th><th>What Happens</th><th>Who Owns It</th></tr>
+                <tr><td><strong>1. Get clear on the 60-day goal</strong></td><td>Define the single most important outcome</td><td>Growth Strategist</td></tr>
+                <tr><td><strong>2. Map out 60-day projections</strong></td><td>Revenue projection skill generates targets</td><td>Growth Strategist</td></tr>
+                <tr><td><strong>3. Decide on first two funnels</strong></td><td>Funnel selection skill recommends funnels</td><td>Growth Strategist</td></tr>
+                <tr><td><strong>4. Review Traffic + Funnel Rollout</strong></td><td>Content and traffic strategy for first 60 days</td><td>GS + COL + CW</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ── How to Prompt AI ── -->
+        <h2 class="section-heading">How to Prompt AI</h2>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">12</div>
+            <div class="step-title">Prompting Tips</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p><strong>Old way:</strong> Dump everything &rarr; confused output &rarr; start over.</p>
+              <p><strong>New way:</strong> Give context in pieces &rarr; confirm understanding &rarr; next step together &rarr; iterate.</p>
+              <div class="callout callout-warning">
+                <div class="callout-title">&#128161; The Magic Phrase</div>
+                "Before you do that, come back to me with your plan first."
+              </div>
+              <ul>
+                <li><strong>One task per conversation.</strong> Start a fresh chat for each topic.</li>
+                <li><strong>Be a manager, not a suggester.</strong> Say "Write a 3-hook DM sequence" &mdash; not "Can you help me think about some DM ideas?"</li>
+                <li><strong>Give context, then instruct.</strong> Share background first, confirm the AI understands, then give the task.</li>
+                <li><strong>Iterate, don't restart.</strong> If the output is 70% right, tell the AI what to fix.</li>
+                <li><strong>Plan in Claude.ai, build in Cursor.</strong> Brainstorm separately from your working files.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ── Testing & Feedback ── -->
+        <h2 class="section-heading">Testing & Feedback</h2>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">13</div>
+            <div class="step-title">How Skills Get to Production</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ul>
+                <li>Run each skill at least 2 times on 2 different clients</li>
+                <li>Fill out the feedback form after each run (5 questions, 3 min)</li>
+                <li>Nothing reaches a client without leadership review</li>
+                <li><strong>Production-ready</strong> = 4/5 average score, no "No" on Q1 or Q5</li>
+                <li>Use <code>/feature-request</code> for improvements or new skill ideas</li>
+              </ul>
+              <p>Your feedback is what makes the skills better. Every issue you flag gets routed back to leadership for a fix.</p>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ── Q&A ── -->
+        <h2 class="section-heading">Q&A</h2>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">?</div>
+            <div class="step-title">Claude, Claude Code, Cursor &mdash; what's the difference?</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body"><p>Brain, brain with hands, the office.</p></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">?</div>
+            <div class="step-title">I'm not a developer. Can I do this?</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body"><p>You're running slash commands and reviewing outputs. The system is designed for non-developers.</p></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">?</div>
+            <div class="step-title">Do I build skills?</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body"><p>Not now. Use <code>/feature-request</code> for ideas.</p></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">?</div>
+            <div class="step-title">Why not one skill per client?</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body"><p>Maintenance nightmare (dozens of duplicate files), breaks cost optimization, contradicts our productization model. One skill + client context = scalable.</p></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">?</div>
+            <div class="step-title">What if a skill gives bad output?</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body"><p>Don't use it. Fill out the feedback form. The skill gets updated. That's the whole testing cycle.</p></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">?</div>
+            <div class="step-title">How do I know which commands to use?</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body"><p>Open <code>slash-command-library.md</code> in Cursor. It lists every command, what it does, and how to use it. Your lead will also assign starting commands during onboarding.</p></div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ── Safety ── -->
+        <h2 class="section-heading">Safety</h2>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">!</div>
+            <div class="step-title">What's safe vs. what's not</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="callout callout-success">
+                <div class="callout-title">&#10003; Safe</div>
+                Slash commands, built-in skills, approved MCPs, leadership-built skills.
+              </div>
+              <div class="callout callout-danger">
+                <div class="callout-title">&#10007; Not safe yet</div>
+                Mac Mini deployments, random internet skills, autonomous agents, PII in prompts, unsupervised client comms.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ── Common Mistakes ── -->
+        <h2 class="section-heading">Common Mistakes</h2>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">!</div>
+            <div class="step-title">What to avoid</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <table class="guide-table">
+                <tr><th>Don't</th><th>Do</th></tr>
+                <tr><td>Dump too much context at once</td><td>One task per conversation</td></tr>
+                <tr><td>Reuse the same chat forever</td><td>Fresh chat per topic</td></tr>
+                <tr><td>Build while brainstorming</td><td>Plan in Claude.ai, build in Cursor</td></tr>
+                <tr><td>Skip the morning pull</td><td>Always <code>git pull origin main</code></td></tr>
+                <tr><td>Write vague commits</td><td>Specific messages</td></tr>
+                <tr><td>Edit skills directly</td><td>Use <code>/feature-request</code></td></tr>
+                <tr><td>Assume AI is right</td><td>Review every output before acting on it</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ── Your First Week ── -->
+        <h2 class="section-heading">Your First Week</h2>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">&#9733;</div>
+            <div class="step-title">Day-by-day plan</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <table class="guide-table">
+                <tr><th>Day</th><th>What to Do</th></tr>
+                <tr><td><strong>Day 1</strong></td><td>Follow the Setup Guide (this page). Get your environment working.</td></tr>
+                <tr><td><strong>Day 2</strong></td><td>Practice the morning/evening Git routine. Read <code>slash-command-library.md</code>. Get familiar with your role's commands.</td></tr>
+                <tr><td><strong>Days 3&ndash;4</strong></td><td>Run your starting commands on 2 clients. Fill feedback forms after each run.</td></tr>
+                <tr><td><strong>Day 5</strong></td><td>Debrief with your lead. Re-read this handbook. Ask questions.</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(9)">&larr; Shortcuts & Troubleshooting</button>
+          <button class="nav-btn" onclick="goToPart(0)">Back to Start</button>
+        </div>
+      </div>
+
+    </div><!-- /content-wrapper -->
+  </div><!-- /main -->
+
+  <script>
+    // ── Step Accordions ──
+    function toggleStep(header) {
+      const step = header.parentElement;
+      step.classList.toggle('open');
+    }
+
+    // ── Part Navigation ──
+    let currentPart = 0;
+
+    function goToPart(n) {
+      // Hide all sections
+      document.querySelectorAll('.part-section').forEach(s => {
+        s.classList.remove('active');
+      });
+      // Show target
+      const target = document.querySelector(`.part-section[data-part="${n}"]`);
+      if (target) {
+        target.classList.add('active');
+        // Add fade-in to header
+        const header = target.querySelector('.part-header');
+        if (header) {
+          header.classList.remove('fade-in');
+          void header.offsetWidth; // trigger reflow
+          header.classList.add('fade-in');
+        }
+      }
+
+      // Update sidebar
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        const itemPart = parseInt(item.dataset.part);
+        if (itemPart < n) {
+          item.classList.add('completed');
+        }
+      });
+      const activeNav = document.querySelector(`.nav-item[data-part="${n}"]`);
+      if (activeNav) activeNav.classList.add('active');
+
+      currentPart = n;
+      window.scrollTo(0, 0);
+
+      // Close mobile sidebar
+      document.querySelector('.sidebar').classList.remove('open');
+      document.querySelector('.sidebar-overlay').classList.remove('open');
+    }
+
+    // ── Copy to Clipboard ──
+    function copyCode(btn) {
+      const block = btn.closest('.code-block, .prompt-block');
+      const code = block.querySelector('pre').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // ── Mobile Sidebar ──
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('open');
+      document.querySelector('.sidebar-overlay').classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>

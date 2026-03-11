@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Safety Policy — SOB</title>
+  <style>
+    :root {
+      --bg-primary: #0f1117;
+      --bg-secondary: #161822;
+      --bg-card: #1c1f2e;
+      --bg-surface: #232738;
+      --bg-hover: #2a2e42;
+      --gold: #d4a853;
+      --gold-light: #f0d78c;
+      --gold-dim: rgba(212,168,83,.15);
+      --gold-border: rgba(212,168,83,.25);
+      --text-primary: #e8e8ed;
+      --text-secondary: #8892a4;
+      --text-dim: #5a6178;
+      --green: #4ade80;
+      --green-dim: rgba(74,222,128,.12);
+      --red: #f87171;
+      --red-dim: rgba(248,113,113,.1);
+      --blue: #60a5fa;
+      --border: rgba(255,255,255,.06);
+      --border-light: rgba(255,255,255,.1);
+      --radius: 12px;
+      --sidebar-width: 280px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      font-size: 15px;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform .3s ease;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-header a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color .2s;
+    }
+
+    .sidebar-header a:hover { color: var(--gold); }
+
+    .sidebar-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 12px;
+      line-height: 1.3;
+    }
+
+    .sidebar-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar { width: 4px; }
+    .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+
+    .nav-section-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      padding: 12px 20px 6px;
+      font-weight: 600;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: background .15s;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+    .nav-item.active {
+      background: var(--gold-dim);
+      color: var(--gold-light);
+      border-right: 2px solid var(--gold);
+    }
+
+    .nav-item.completed .nav-dot {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .nav-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: 2px solid var(--text-dim);
+      flex-shrink: 0;
+      margin-top: 5px;
+      transition: all .2s;
+    }
+
+    .nav-item.active .nav-dot {
+      border-color: var(--gold);
+      background: var(--gold);
+    }
+
+    .main {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+    }
+
+    .content-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 40px 120px;
+    }
+
+    .part-header { margin-bottom: 40px; }
+
+    .part-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .part-title {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .part-description {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .part-section { display: none; }
+    .part-section.active { display: block; }
+
+    .step {
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+
+    .step:hover { border-color: var(--border-light); }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      cursor: pointer;
+      background: var(--bg-card);
+      user-select: none;
+      transition: background .15s;
+    }
+
+    .step-header:hover { background: var(--bg-surface); }
+
+    .step-number {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--gold-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--gold);
+      flex-shrink: 0;
+      transition: all .2s;
+    }
+
+    .step.open .step-number {
+      background: var(--gold);
+      color: var(--bg-primary);
+      border-color: var(--gold);
+    }
+
+    .step-title {
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .step-arrow {
+      color: var(--text-dim);
+      transition: transform .2s;
+      font-size: 0.8rem;
+    }
+
+    .step.open .step-arrow { transform: rotate(90deg); }
+
+    .step-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease;
+    }
+
+    .step.open .step-content { max-height: 3000px; }
+
+    .step-body {
+      padding: 4px 20px 24px 66px;
+      border-top: 1px solid var(--border);
+    }
+
+    .step-body p { margin: 12px 0; }
+    .step-body ol, .step-body ul { margin: 12px 0; padding-left: 20px; }
+    .step-body li { margin: 6px 0; }
+
+    code:not(pre code) {
+      background: var(--bg-surface);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.85em;
+      color: var(--gold-light);
+      border: 1px solid var(--border);
+    }
+
+    .callout {
+      padding: 16px 20px;
+      border-radius: var(--radius);
+      margin: 16px 0;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .callout-success {
+      background: var(--green-dim);
+      border: 1px solid rgba(74,222,128,.2);
+    }
+    .callout-success .callout-title { color: var(--green); }
+
+    .callout-warning {
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+    }
+    .callout-warning .callout-title { color: var(--gold); }
+
+    .callout-danger {
+      background: var(--red-dim);
+      border: 1px solid rgba(248,113,113,.2);
+    }
+    .callout-danger .callout-title { color: var(--red); }
+
+    .callout-info {
+      background: rgba(96,165,250,.08);
+      border: 1px solid rgba(96,165,250,.2);
+    }
+    .callout-info .callout-title { color: var(--blue); }
+
+    .guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+    }
+
+    .guide-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--gold);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .guide-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .guide-table tr:hover td { background: rgba(255,255,255,.02); }
+
+    h2.section-heading {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 32px 0 16px;
+      color: var(--text-primary);
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 32px 0;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 48px;
+      gap: 16px;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: var(--font);
+    }
+
+    .nav-btn:hover {
+      background: var(--bg-surface);
+      border-color: var(--gold-border);
+    }
+
+    .nav-btn.primary {
+      background: var(--gold);
+      color: var(--bg-primary);
+      border-color: var(--gold);
+    }
+
+    .nav-btn.primary:hover { background: var(--gold-light); }
+
+    strong { color: var(--text-primary); }
+
+    .hamburger {
+      display: none;
+      position: fixed;
+      top: 16px; left: 16px;
+      z-index: 200;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 90;
+    }
+
+    .policy-rule {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin: 12px 0;
+    }
+
+    .policy-rule .rule-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .policy-rule.required .rule-label { color: var(--red); }
+    .policy-rule.recommended .rule-label { color: var(--gold); }
+    .policy-rule.info .rule-label { color: var(--blue); }
+
+    .policy-rule p {
+      color: var(--text-secondary);
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .fade-in {
+      animation: fadeIn .4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+      .hamburger { display: block; }
+      .main { margin-left: 0; }
+      .content-wrapper { padding: 48px 24px 120px; }
+    }
+
+    @media (max-width: 600px) {
+      .content-wrapper { padding: 48px 16px 100px; }
+      .part-title { font-size: 1.5rem; }
+      .step-body { padding-left: 20px; }
+      .nav-buttons { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">&#9776;</button>
+  <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html">&larr; All Guides</a>
+      <div class="sidebar-title">AI Safety Policy</div>
+      <div class="sidebar-subtitle">What's safe, what's not, and why</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Policy</div>
+      <a class="nav-item active" data-part="0" onclick="goToPart(0)">
+        <span class="nav-dot"></span>
+        <span>Overview & Core Rules</span>
+      </a>
+      <a class="nav-item" data-part="1" onclick="goToPart(1)">
+        <span class="nav-dot"></span>
+        <span>Approved Tools & MCPs</span>
+      </a>
+      <a class="nav-item" data-part="2" onclick="goToPart(2)">
+        <span class="nav-dot"></span>
+        <span>Client Data & Privacy</span>
+      </a>
+      <a class="nav-item" data-part="3" onclick="goToPart(3)">
+        <span class="nav-dot"></span>
+        <span>Output Review & QA</span>
+      </a>
+      <a class="nav-item" data-part="4" onclick="goToPart(4)">
+        <span class="nav-dot"></span>
+        <span>API Keys & Credentials</span>
+      </a>
+      <a class="nav-item" data-part="5" onclick="goToPart(5)">
+        <span class="nav-dot"></span>
+        <span>Git & Code Safety</span>
+      </a>
+      <a class="nav-item" data-part="6" onclick="goToPart(6)">
+        <span class="nav-dot"></span>
+        <span>Communication Boundaries</span>
+      </a>
+      <a class="nav-item" data-part="7" onclick="goToPart(7)">
+        <span class="nav-dot"></span>
+        <span>Incident Response</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="content-wrapper">
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 0: Overview & Core Rules         -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section active" data-part="0">
+        <div class="part-header fade-in">
+          <div class="part-label">AI Safety Policy</div>
+          <h1 class="part-title">Overview & Core Rules</h1>
+          <p class="part-description">Every team member using AI tools at SOB is responsible for following these guidelines. This policy protects our clients, our team, and our business.</p>
+        </div>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">&#127919; The Bottom Line</div>
+          AI produces drafts. Humans make decisions. Nothing AI-generated reaches a client without a human reviewing and approving it first.
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">What's Approved for Use</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="callout callout-success">
+                <div class="callout-title">&#10003; Safe to use</div>
+                <ul>
+                  <li>Slash commands built by leadership</li>
+                  <li>Skills in the <code>skills/</code> folder of the team repo</li>
+                  <li>Approved MCP connections (Airtable, Notion, Gmail, Slack, Google Calendar)</li>
+                  <li>Claude Code inside Cursor for your daily work</li>
+                  <li>Claude.ai for brainstorming and planning (separate from client work)</li>
+                </ul>
+              </div>
+              <div class="callout callout-danger">
+                <div class="callout-title">&#10007; Not approved</div>
+                <ul>
+                  <li>Random skills or plugins downloaded from the internet</li>
+                  <li>Autonomous agents running without human oversight</li>
+                  <li>Mac Mini or server-based deployments (not yet validated)</li>
+                  <li>Any AI tool sending messages directly to clients without review</li>
+                  <li>Third-party AI tools not vetted by leadership (ChatGPT, Jasper, etc. for client deliverables)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">The Five Core Rules</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="policy-rule required">
+                <div class="rule-label">Rule 1 &mdash; Required</div>
+                <p><strong>Never send AI output to a client without human review.</strong> Every output &mdash; DM copy, strategy recommendation, client message, email draft &mdash; must be reviewed and approved by a team member before it reaches a client.</p>
+              </div>
+
+              <div class="policy-rule required">
+                <div class="rule-label">Rule 2 &mdash; Required</div>
+                <p><strong>Never put sensitive client information in AI prompts unless using approved tools.</strong> Client passwords, payment information, personal addresses, or health data should never be typed into any AI chat. Business data (MRR, funnel metrics, account names) is fine in approved tools like Claude Code with the Airtable MCP.</p>
+              </div>
+
+              <div class="policy-rule required">
+                <div class="rule-label">Rule 3 &mdash; Required</div>
+                <p><strong>Never install unapproved skills, plugins, or MCP servers.</strong> If you find a tool that looks useful, use <code>/feature-request</code> to suggest it. Leadership will vet it before it enters the system.</p>
+              </div>
+
+              <div class="policy-rule required">
+                <div class="rule-label">Rule 4 &mdash; Required</div>
+                <p><strong>Never share API keys.</strong> Not in Slack, not in email, not in a Notion doc, not in a commit. API keys are private credentials. If you think a key has been exposed, notify leadership immediately.</p>
+              </div>
+
+              <div class="policy-rule required">
+                <div class="rule-label">Rule 5 &mdash; Required</div>
+                <p><strong>Never modify skill files directly.</strong> Skills are maintained by leadership. If a skill needs improvement, use <code>/feature-request</code>. Editing a skill file without approval can break it for the entire team.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <span></span>
+          <button class="nav-btn primary" onclick="goToPart(1)">Approved Tools & MCPs &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 1: Approved Tools & MCPs         -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="1">
+        <div class="part-header fade-in">
+          <div class="part-label">AI Safety Policy</div>
+          <h1 class="part-title">Approved Tools & MCPs</h1>
+          <p class="part-description">Only use AI tools and connections that have been vetted and approved by leadership.</p>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">Approved AI Tools</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <table class="guide-table">
+                <tr><th>Tool</th><th>Approved Use</th><th>Access Level</th></tr>
+                <tr><td><strong>Claude Code (in Cursor)</strong></td><td>All daily work &mdash; slash commands, file editing, client deliverables</td><td>All team members</td></tr>
+                <tr><td><strong>Claude.ai</strong></td><td>Brainstorming, planning, learning &mdash; not for final client deliverables</td><td>All team members</td></tr>
+                <tr><td><strong>Claude API (Batch Scripts)</strong></td><td>Scheduled automation runs &mdash; outputs go to review queue</td><td>Leadership only</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">Approved MCP Connections</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>MCP servers connect Claude to external services. Only these connections are approved:</p>
+              <table class="guide-table">
+                <tr><th>MCP Server</th><th>What It Accesses</th><th>Permission Level</th></tr>
+                <tr><td><strong>Airtable</strong></td><td>Client data &mdash; MRR, funnel status, roles, flags</td><td>Read-only</td></tr>
+                <tr><td><strong>Notion</strong></td><td>Internal docs, review queues, project tracking</td><td>Read + Write (team workspace only)</td></tr>
+                <tr><td><strong>Gmail</strong></td><td>Draft emails for review</td><td>Draft creation only &mdash; does not auto-send</td></tr>
+                <tr><td><strong>Slack</strong></td><td>Internal team channels</td><td>Read + Write (internal channels only)</td></tr>
+                <tr><td><strong>Google Calendar</strong></td><td>Scheduling, availability</td><td>Read + Write</td></tr>
+                <tr><td><strong>Context7</strong></td><td>Documentation lookup</td><td>Read-only (public docs)</td></tr>
+              </table>
+              <div class="callout callout-warning">
+                <div class="callout-title">&#9888; Adding new MCPs</div>
+                If you need a connection to a tool not listed here, submit a <code>/feature-request</code>. Do not add MCP servers to your <code>mcp.json</code> without leadership approval.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">3</div>
+            <div class="step-title">Approved Cursor Plugins</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>These plugins are pre-installed during team setup. Do not install additional plugins without approval:</p>
+              <ul>
+                <li>frontend-design</li>
+                <li>plugin-dev</li>
+                <li>feature-dev</li>
+                <li>github</li>
+                <li>code-review</li>
+                <li>figma</li>
+                <li>Notion</li>
+                <li>stripe</li>
+                <li>skill-creator</li>
+              </ul>
+              <p>All plugins are from <code>@claude-plugins-official</code>. Third-party or community plugins require leadership review before installation.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(0)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(2)">Client Data & Privacy &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 2: Client Data & Privacy         -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="2">
+        <div class="part-header fade-in">
+          <div class="part-label">AI Safety Policy</div>
+          <h1 class="part-title">Client Data & Privacy</h1>
+          <p class="part-description">How to handle client information when using AI tools.</p>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">What You Can and Cannot Share with AI</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="callout callout-success">
+                <div class="callout-title">&#10003; OK to use in Claude Code</div>
+                <ul>
+                  <li>Client account names and brand names</li>
+                  <li>Business metrics (MRR, conversion rates, funnel performance)</li>
+                  <li>Brand voice descriptions and approved copy</li>
+                  <li>Funnel strategies and content plans</li>
+                  <li>Public social media content</li>
+                </ul>
+              </div>
+              <div class="callout callout-danger">
+                <div class="callout-title">&#10007; Never put in any AI prompt</div>
+                <ul>
+                  <li>Client passwords or login credentials</li>
+                  <li>Payment information (credit cards, bank accounts)</li>
+                  <li>Personal addresses, phone numbers, or health data</li>
+                  <li>Social Security numbers or government IDs</li>
+                  <li>Private DMs or personal conversations with clients</li>
+                  <li>Any information the client has not shared with us for business purposes</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">How Client Data Flows Through Our System</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <table class="guide-table">
+                <tr><th>Source</th><th>What It Contains</th><th>How AI Accesses It</th></tr>
+                <tr><td><strong>Airtable</strong></td><td>Account data, metrics, role assignments</td><td>Read-only via MCP &mdash; pulled automatically when you run a command</td></tr>
+                <tr><td><strong>Context Library</strong></td><td>Voice profiles, brand notes, funnel playbooks</td><td>Read from files in the repo &mdash; never modified by AI</td></tr>
+                <tr><td><strong>Approved Copy Library</strong></td><td>Client-approved hooks, CTAs, sequences</td><td>Read from Google Drive docs &mdash; CW and GS maintain manually</td></tr>
+              </table>
+              <div class="policy-rule info">
+                <div class="rule-label">Key principle</div>
+                <p>AI reads client data through approved channels only. It does not scrape, search, or access client systems independently. Everything comes through Airtable MCP or files you've placed in the repo.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">3</div>
+            <div class="step-title">Data Retention & AI Memory</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ul>
+                <li><strong>Claude Code conversations are not permanently stored by Anthropic</strong> when using the API. Conversations end when the session ends.</li>
+                <li><strong>Claude.ai conversations may be stored</strong> depending on account settings. Do not use Claude.ai for sensitive client data &mdash; use Claude Code in Cursor instead.</li>
+                <li><strong>Files in the repo are version-controlled.</strong> Anything you commit to GitHub is tracked permanently. Be intentional about what you commit.</li>
+                <li><strong>Start fresh conversations for new topics.</strong> Don't let client data from one conversation bleed into an unrelated task.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(1)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(3)">Output Review & QA &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 3: Output Review & QA            -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="3">
+        <div class="part-header fade-in">
+          <div class="part-label">AI Safety Policy</div>
+          <h1 class="part-title">Output Review & QA</h1>
+          <p class="part-description">Every AI output requires human judgment before it's acted on.</p>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">The Review Requirement</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="policy-rule required">
+                <div class="rule-label">Non-negotiable</div>
+                <p>No AI-generated content reaches a client without being reviewed by the responsible team member AND approved by leadership (Natasha or Anissa) during the testing phase.</p>
+              </div>
+              <p>This applies to:</p>
+              <ul>
+                <li>DM funnel copy</li>
+                <li>Social media captions and story schedules</li>
+                <li>Email sequences</li>
+                <li>Client communication messages (Monday recaps, Slack updates)</li>
+                <li>Strategy recommendations</li>
+                <li>Build specs and automation documentation</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">What to Check in Every AI Output</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <table class="guide-table">
+                <tr><th>Check</th><th>What to Look For</th></tr>
+                <tr><td><strong>Accuracy</strong></td><td>Are the numbers, client names, and facts correct? AI can hallucinate metrics.</td></tr>
+                <tr><td><strong>Tone</strong></td><td>Does it match the client's brand voice? Not generic AI-sounding language?</td></tr>
+                <tr><td><strong>Relevance</strong></td><td>Is it actually addressing what was asked? Does it fit the client's current stage?</td></tr>
+                <tr><td><strong>Sensitivity</strong></td><td>Could anything be misread, offensive, or inappropriate for this client's audience?</td></tr>
+                <tr><td><strong>Completeness</strong></td><td>Is anything missing that the client would expect?</td></tr>
+                <tr><td><strong>Hallucinations</strong></td><td>Did the AI make up a product, stat, testimonial, or claim that doesn't exist?</td></tr>
+              </table>
+              <div class="callout callout-warning">
+                <div class="callout-title">&#9888; Hallucination risk</div>
+                AI can confidently state things that are completely false. Always verify specific numbers, dates, product names, and client-specific claims against real data. If it sounds too specific to be true, check it.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">3</div>
+            <div class="step-title">Batch Output Review Process</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>When batch scripts run on a schedule, outputs go to a <strong>Notion review queue</strong> &mdash; not directly to clients. The review process:</p>
+              <ol>
+                <li>Batch runs and deposits outputs in the review queue</li>
+                <li>The responsible team member reviews each output for their role</li>
+                <li>Approved outputs are acted on. Rejected outputs get feedback via the feedback form.</li>
+                <li>Feedback is routed to leadership to improve the skill</li>
+              </ol>
+              <div class="policy-rule recommended">
+                <div class="rule-label">Best practice</div>
+                <p>Review batch outputs within 2 hours of them landing in the queue. Stale outputs may contain outdated data.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(2)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(4)">API Keys & Credentials &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 4: API Keys & Credentials        -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="4">
+        <div class="part-header fade-in">
+          <div class="part-label">AI Safety Policy</div>
+          <h1 class="part-title">API Keys & Credentials</h1>
+          <p class="part-description">API keys are private passwords. Treat them like your bank login.</p>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">Where Keys Should and Should Not Live</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="callout callout-success">
+                <div class="callout-title">&#10003; Safe locations</div>
+                <ul>
+                  <li>Your <code>~/.zshrc</code> file (local to your machine, never committed)</li>
+                  <li>The <code>env</code> section of your <code>~/.claude/mcp.json</code> (local, never committed)</li>
+                  <li>A password manager (1Password, LastPass, etc.)</li>
+                </ul>
+              </div>
+              <div class="callout callout-danger">
+                <div class="callout-title">&#10007; Never put keys here</div>
+                <ul>
+                  <li>Slack messages or channels</li>
+                  <li>Notion pages or docs</li>
+                  <li>Email</li>
+                  <li>Any file inside the Git repo (it will be committed and visible to everyone)</li>
+                  <li>Claude Code chat (it may echo it back in visible output)</li>
+                  <li>Screenshots shared with others</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">If a Key Is Exposed</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="policy-rule required">
+                <div class="rule-label">Immediate action required</div>
+                <p>If you accidentally paste an API key into Slack, commit it to GitHub, or share it in any public/semi-public location:</p>
+              </div>
+              <ol>
+                <li><strong>Tell leadership immediately</strong> &mdash; Slack DM to Natasha or Anissa</li>
+                <li><strong>Revoke the key</strong> &mdash; go to the provider's console and delete it</li>
+                <li><strong>Generate a new key</strong> and update your local config</li>
+                <li><strong>If it was committed to Git</strong> &mdash; do not try to fix it yourself. Tell leadership. The key is in the Git history even after deletion.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">3</div>
+            <div class="step-title">Key Rotation</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="policy-rule recommended">
+                <div class="rule-label">Recommended</div>
+                <p>API keys should be rotated (replaced with new ones) every 90 days or immediately after any team member departure. Leadership will coordinate rotation schedules.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(3)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(5)">Git & Code Safety &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 5: Git & Code Safety             -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="5">
+        <div class="part-header fade-in">
+          <div class="part-label">AI Safety Policy</div>
+          <h1 class="part-title">Git & Code Safety</h1>
+          <p class="part-description">Protecting the team repo and making sure changes are safe.</p>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">What Never Gets Committed</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>The repo's <code>.gitignore</code> should already prevent most of these, but double-check before committing:</p>
+              <ul>
+                <li><strong>API keys or tokens</strong> &mdash; even in config files</li>
+                <li><strong><code>.env</code> files</strong> &mdash; these contain environment variables with secrets</li>
+                <li><strong><code>node_modules/</code></strong> &mdash; installed packages, not source code</li>
+                <li><strong>Personal notes or drafts</strong> that aren't meant for the team</li>
+                <li><strong>Client credentials or passwords</strong></li>
+              </ul>
+              <div class="callout callout-info">
+                <div class="callout-title">&#128161; Check before committing</div>
+                Always review your staged changes in Source Control before hitting Commit. If you see a file you don't recognize or didn't intend to change, unstage it.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">Branch Safety</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="policy-rule required">
+                <div class="rule-label">Required</div>
+                <p><strong>Never commit directly to the <code>main</code> branch.</strong> Always create a personal branch (<code>yourname-MM-DD-YY</code>) and submit a pull request. Leadership reviews before merging.</p>
+              </div>
+              <ul>
+                <li>Your branch is your sandbox &mdash; you can't break anything for other people</li>
+                <li>The PR process is the quality gate &mdash; changes only go live after review</li>
+                <li>If you accidentally make changes on main, tell leadership before pushing</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">3</div>
+            <div class="step-title">AI-Generated File Changes</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>When Claude Code edits files on your behalf:</p>
+              <ul>
+                <li><strong>Review the changes</strong> in Source Control before committing &mdash; make sure you understand what was changed</li>
+                <li><strong>Don't blindly approve</strong> &mdash; Claude may edit files you didn't intend it to touch</li>
+                <li><strong>If it modified a skill file</strong> &mdash; do not commit that change. Skill files are maintained by leadership only.</li>
+                <li><strong>If you're unsure</strong> &mdash; ask Claude Code to explain what it changed and why</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(4)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(6)">Communication Boundaries &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 6: Communication Boundaries      -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="6">
+        <div class="part-header fade-in">
+          <div class="part-label">AI Safety Policy</div>
+          <h1 class="part-title">Communication Boundaries</h1>
+          <p class="part-description">Where AI can and cannot send messages on your behalf.</p>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">Internal Communication (Team Channels)</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="callout callout-success">
+                <div class="callout-title">&#10003; Allowed</div>
+                <ul>
+                  <li>Claude Code sending messages to internal Slack channels (e.g., #ai-testing)</li>
+                  <li>Claude Code creating Gmail drafts for your review</li>
+                  <li>Claude Code creating or updating Notion pages in the team workspace</li>
+                  <li>Claude Code creating calendar events</li>
+                </ul>
+              </div>
+              <div class="policy-rule recommended">
+                <div class="rule-label">Best practice</div>
+                <p>Even for internal messages, review what Claude drafts before sending. AI can misunderstand context, get names wrong, or include information meant for a different conversation.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">Client-Facing Communication</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <div class="policy-rule required">
+                <div class="rule-label">Strict boundary</div>
+                <p><strong>AI does not communicate with clients directly.</strong> Not now, not until leadership explicitly approves a supervised process. This includes:</p>
+              </div>
+              <ul>
+                <li>No AI-sent emails to clients</li>
+                <li>No AI-sent Slack messages to client channels</li>
+                <li>No AI-generated Instagram DMs sent without approval</li>
+                <li>No AI-written client proposals sent without review</li>
+              </ul>
+              <p><strong>The workflow is:</strong> AI drafts &rarr; human reviews &rarr; human sends. Always.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">3</div>
+            <div class="step-title">Social Media & Public Content</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <ul>
+                <li><strong>AI can draft</strong> social media captions, story schedules, and DM funnel copy</li>
+                <li><strong>AI cannot publish</strong> anything directly to any platform</li>
+                <li><strong>All public content</strong> goes through the standard approval flow: AI draft &rarr; CW review &rarr; GS confirm &rarr; client approval (if required) &rarr; publish</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(5)">&larr; Previous</button>
+          <button class="nav-btn primary" onclick="goToPart(7)">Incident Response &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- PART 7: Incident Response             -->
+      <!-- ══════════════════════════════════════ -->
+      <div class="part-section" data-part="7">
+        <div class="part-header fade-in">
+          <div class="part-label">AI Safety Policy</div>
+          <h1 class="part-title">Incident Response</h1>
+          <p class="part-description">What to do when something goes wrong.</p>
+        </div>
+
+        <div class="step open">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">1</div>
+            <div class="step-title">Types of Incidents</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <table class="guide-table">
+                <tr><th>Severity</th><th>Example</th><th>Action</th></tr>
+                <tr><td style="color: var(--gold);"><strong>Low</strong></td><td>AI output was wrong or low quality</td><td>Fill out feedback form. Don't use the output. Continue working.</td></tr>
+                <tr><td style="color: var(--gold);"><strong>Medium</strong></td><td>AI edited a file it shouldn't have. A skill produced unexpected results for multiple clients.</td><td>Don't commit the changes. Notify leadership in Slack. They'll investigate.</td></tr>
+                <tr><td style="color: var(--red);"><strong>High</strong></td><td>API key exposed publicly. AI sent a message to a client without approval. Client data appeared somewhere it shouldn't.</td><td>Stop immediately. DM Natasha and Anissa. Do not try to fix it on your own.</td></tr>
+                <tr><td style="color: var(--red);"><strong>Critical</strong></td><td>Client credentials leaked. Unauthorized access to client accounts. Billing or payment data exposed.</td><td>Stop everything. Call Natasha or Anissa directly. If unreachable, revoke the affected key/access immediately.</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">2</div>
+            <div class="step-title">Reporting Steps</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>For any medium-or-higher incident:</p>
+              <ol>
+                <li><strong>Stop</strong> what you're doing with that tool or process</li>
+                <li><strong>Document</strong> what happened &mdash; screenshot or copy the relevant output</li>
+                <li><strong>Report</strong> via Slack DM to Natasha and Anissa with:
+                  <ul>
+                    <li>What you were doing</li>
+                    <li>What went wrong</li>
+                    <li>Which client(s) are affected</li>
+                    <li>Any screenshots</li>
+                  </ul>
+                </li>
+                <li><strong>Wait</strong> for instructions before continuing with the affected tool or client</li>
+              </ol>
+              <div class="callout callout-info">
+                <div class="callout-title">&#128161; No blame</div>
+                Incidents are learning opportunities, not punishment. Reporting quickly is always better than trying to fix it quietly. The faster we know, the faster we can protect the client.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header" onclick="toggleStep(this)">
+            <div class="step-number">3</div>
+            <div class="step-title">After an Incident</div>
+            <div class="step-arrow">&#9654;</div>
+          </div>
+          <div class="step-content">
+            <div class="step-body">
+              <p>Leadership will:</p>
+              <ol>
+                <li>Assess the impact and contain the issue</li>
+                <li>Determine if the client needs to be notified</li>
+                <li>Update the relevant skill, process, or policy to prevent recurrence</li>
+                <li>Communicate the fix to the team</li>
+              </ol>
+              <p>If a policy update comes out of an incident, it will be added to this page and announced in the team Slack.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="goToPart(6)">&larr; Previous</button>
+          <button class="nav-btn" onclick="goToPart(0)">Back to Start</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function toggleStep(header) {
+      const step = header.parentElement;
+      step.classList.toggle('open');
+    }
+
+    let currentPart = 0;
+
+    function goToPart(n) {
+      document.querySelectorAll('.part-section').forEach(s => s.classList.remove('active'));
+      const target = document.querySelector(`.part-section[data-part="${n}"]`);
+      if (target) {
+        target.classList.add('active');
+        const header = target.querySelector('.part-header');
+        if (header) {
+          header.classList.remove('fade-in');
+          void header.offsetWidth;
+          header.classList.add('fade-in');
+        }
+      }
+
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        const itemPart = parseInt(item.dataset.part);
+        if (itemPart < n) item.classList.add('completed');
+      });
+      const activeNav = document.querySelector(`.nav-item[data-part="${n}"]`);
+      if (activeNav) activeNav.classList.add('active');
+
+      currentPart = n;
+      window.scrollTo(0, 0);
+
+      document.querySelector('.sidebar').classList.remove('open');
+      document.querySelector('.sidebar-overlay').classList.remove('open');
+    }
+
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('open');
+      document.querySelector('.sidebar-overlay').classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>
